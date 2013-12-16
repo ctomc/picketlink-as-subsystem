@@ -54,6 +54,7 @@ public class ServiceProviderAddHandler extends AbstractResourceAddStepHandler {
     protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model,
             ServiceVerificationHandler verificationHandler, List<ServiceController<?>> newControllers)
             throws OperationFailedException {
+        //todo why is operation sent around? it should be model
         ServiceProviderService service = new ServiceProviderService(context, operation);
         
         ServiceName name = ServiceProviderService.createServiceName(service.getConfiguration().getAlias());
@@ -61,6 +62,7 @@ public class ServiceProviderAddHandler extends AbstractResourceAddStepHandler {
         ServiceController<ServiceProviderService> controller = context.getServiceTarget().addService(name, service)
                 .addListener(verificationHandler).setInitialMode(Mode.ACTIVE).install();
 
+        //todo new controllers can be null in certain server states
         newControllers.add(controller);
     }
 

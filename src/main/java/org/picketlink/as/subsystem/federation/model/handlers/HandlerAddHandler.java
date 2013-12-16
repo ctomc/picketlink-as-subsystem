@@ -41,6 +41,7 @@ import org.picketlink.config.federation.handler.Handlers;
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
+//todo should extend
 public class HandlerAddHandler extends AbstractResourceAddStepHandler {
 
     public static final HandlerAddHandler INSTANCE = new HandlerAddHandler();

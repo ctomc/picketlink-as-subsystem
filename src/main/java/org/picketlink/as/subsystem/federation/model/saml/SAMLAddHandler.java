@@ -56,6 +56,7 @@ public class SAMLAddHandler extends AbstractResourceAddStepHandler {
     protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model,
             ServiceVerificationHandler verificationHandler, List<ServiceController<?>> newControllers)
             throws OperationFailedException {
+        //you should pass around Model not operation!
         FederationService federationService = FederationService.getService(context.getServiceRegistry(true), operation);
         
         federationService.setSamlConfig(ModelUtils.toSAMLConfig(model));

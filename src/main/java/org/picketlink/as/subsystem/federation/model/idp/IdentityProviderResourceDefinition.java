@@ -39,7 +39,7 @@ import org.picketlink.as.subsystem.model.ModelElement;
 public class IdentityProviderResourceDefinition extends AbstractResourceDefinition {
 
     public static final IdentityProviderResourceDefinition INSTANCE = new IdentityProviderResourceDefinition();
-
+    //todo why no expression support? all attributes should support expressions!
     public static final SimpleAttributeDefinition URL = new SimpleAttributeDefinitionBuilder(ModelElement.COMMON_URL.getName(),
             ModelType.STRING, false).setAllowExpression(false).build();
     public static final SimpleAttributeDefinition SECURITY_DOMAIN = new SimpleAttributeDefinitionBuilder(

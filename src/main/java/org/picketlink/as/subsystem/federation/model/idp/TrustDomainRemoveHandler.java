@@ -49,6 +49,7 @@ public class TrustDomainRemoveHandler extends AbstractRemoveStepHandler {
     @Override
     protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model)
             throws OperationFailedException {
+        //todo this should use PathAddress & AttributeDefinition.resolveModelAttribute(context,model).asString();
         String alias = operation.get(ModelDescriptionConstants.ADDRESS).asPropertyList().get(2).getValue().asString();
         String domain = operation.get(ModelElement.IDENTITY_PROVIDER_TRUST_DOMAIN_NAME.getName()).asString();
 
@@ -58,6 +59,7 @@ public class TrustDomainRemoveHandler extends AbstractRemoveStepHandler {
         
         if (keyProvider != null) {
             for (KeyValueType validatinAlias : new ArrayList<KeyValueType>(keyProvider.getValidatingAlias())) {
+                //todo this is always false
                 if (validatinAlias.equals(domain)) {
                     keyProvider.remove(validatinAlias);
                 }

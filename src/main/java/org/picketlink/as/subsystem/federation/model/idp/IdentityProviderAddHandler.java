@@ -66,7 +66,7 @@ public class IdentityProviderAddHandler extends AbstractResourceAddStepHandler {
                 .getServiceTarget()
                 .addService(IdentityProviderService.createServiceName(pathAddress.getLastElement().getValue()),
                         identityProviderService).addListener(verificationHandler).setInitialMode(Mode.ACTIVE).install();
-
+        //todo this will fail when new controllers are null, on reload for example or restart of service
         newControllers.add(controller);
     }
 

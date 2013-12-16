@@ -35,7 +35,7 @@ import org.picketlink.as.subsystem.model.ModelElement;
  * @since Mar 16, 2012
  */
 public class IdentityConfigurationResourceDefinition extends AbstractResourceDefinition {
-
+    //todo NAME attribute is not needed as it is by default present on resource
     public static final SimpleAttributeDefinition NAME = new SimpleAttributeDefinitionBuilder(
             ModelElement.COMMON_NAME.getName(), ModelType.STRING, false)
             .setAllowExpression(false).build();

@@ -117,10 +117,12 @@ public class FederationRemoveHandler extends AbstractRemoveStepHandler  {
     }
 
     private Property getIdentityProvider(ModelNode model) {
+        //todo model.hasDefined(ModelElement.IDENTITY_PROVIDER.getName())
         return model.get(ModelElement.IDENTITY_PROVIDER.getName()).asPropertyList().get(0);
     }
 
     private boolean hasIdentityProvider(ModelNode model) {
+        //todo model.hasDefined(ModelElement.IDENTITY_PROVIDER.getName())
         return model.get(ModelElement.IDENTITY_PROVIDER.getName()).isDefined() && !model.get(ModelElement.IDENTITY_PROVIDER.getName()).asPropertyList().isEmpty();
     }
 }

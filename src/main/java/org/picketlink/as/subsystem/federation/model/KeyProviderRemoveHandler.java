@@ -44,6 +44,7 @@ public class KeyProviderRemoveHandler extends AbstractRemoveStepHandler {
     @Override
     protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model)
             throws OperationFailedException {
+        //todo why does ADD & REMOVE both do the same thing?
         FederationService federationService = FederationService.getService(context.getServiceRegistry(true), operation);
         
         federationService.setKeyProvider(null);

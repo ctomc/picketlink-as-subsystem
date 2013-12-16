@@ -55,6 +55,7 @@ public class IdentityProviderService extends AbstractEntityProviderService<Ident
     @Override
     public void start(StartContext context) throws StartException {
         super.start(context);
+        //todo cannot even begin to state on how many levels this is beyond wrong! where are dependances between services defined? injection?
         this.getFederationService().setIdentityProviderService(this);
     }
 
@@ -65,6 +66,7 @@ public class IdentityProviderService extends AbstractEntityProviderService<Ident
     public void stop(StopContext context) {
         super.stop(context);
         this.setConfiguration(new IDPConfiguration());
+        //todo remove!
         this.getFederationService().setIdentityProviderService(null);
     }
 
@@ -111,6 +113,7 @@ public class IdentityProviderService extends AbstractEntityProviderService<Ident
      */
     @SuppressWarnings("unchecked")
     public static IdentityProviderService getService(ServiceRegistry registry, String name) {
+        //todo no, no no no no no no!
         ServiceController<IdentityProviderService> container = (ServiceController<IdentityProviderService>) registry.getService(IdentityProviderService.createServiceName(name));
         
         if (container != null) {

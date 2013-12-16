@@ -56,6 +56,7 @@ public class IDMConfigAddStepHandler extends AbstractAddStepHandler {
             ServiceVerificationHandler verificationHandler, List<ServiceController<?>> newControllers)
             throws OperationFailedException {
         super.performRuntime(context, operation, model, verificationHandler, newControllers);
+        //todo why? reload required on :add? that will make sure system comes to "no reload required"
         context.reloadRequired();
     }
 }

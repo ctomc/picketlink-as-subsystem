@@ -53,6 +53,10 @@ public class HandlerParameterRemoveHandler extends AbstractRemoveStepHandler {
             throws OperationFailedException {
         String providerAlias = operation.get(ModelDescriptionConstants.ADDRESS).asPropertyList().get(2).getValue().asString();
         String handlerClassName = operation.get(ModelDescriptionConstants.ADDRESS).asPropertyList().get(3).getValue().asString();
+        /* todo NAME should not be and attribute as it is part of resource. for example
+        final PathAddress address = PathAddress.pathAddress(operation.get(OP_ADDR));
+        final String name = address.getLastElement().getValue();
+         */
         String paramName = operation.get(ModelElement.COMMON_NAME.getName()).asString();
 
         AbstractEntityProviderService providerService = getParentProviderService(context, providerAlias);

@@ -39,6 +39,7 @@ public class TrustDomainResourceDefinition extends AbstractResourceDefinition {
 
     public static final SimpleAttributeDefinition NAME = new SimpleAttributeDefinitionBuilder(
             ModelElement.IDENTITY_PROVIDER_TRUST_DOMAIN_NAME.getName(), ModelType.STRING, false).setAllowExpression(false).build();
+    //todo why no expression support?
     public static final SimpleAttributeDefinition CERT_ALIAS = new SimpleAttributeDefinitionBuilder(
             ModelElement.IDENTITY_PROVIDER_TRUST_DOMAIN_CERT_ALIAS.getName(), ModelType.STRING, true).setAllowExpression(false).build();
 

@@ -56,9 +56,12 @@ public class TrustDomainAddHandler extends AbstractResourceAddStepHandler {
     protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model,
             ServiceVerificationHandler verificationHandler, List<ServiceController<?>> newControllers)
             throws OperationFailedException {
+        //todo PathElement
         String alias = operation.get(ModelDescriptionConstants.ADDRESS).asPropertyList().get(2).getValue().asString();
+        //todo this is again reliying on name of attribute which wrong. name is implicit and does not need extra attribute
         String domain = operation.get(ModelElement.IDENTITY_PROVIDER_TRUST_DOMAIN_NAME.getName()).asString();
         String certAlias = null;
+        //todo this must use TrustDomainResourceDefinition.CERT_ALIAS.resolveModelAttribute(context,model).asString()
 
         if (operation.get(ModelElement.IDENTITY_PROVIDER_TRUST_DOMAIN_CERT_ALIAS.getName()).isDefined()) {
             certAlias = operation.get(ModelElement.IDENTITY_PROVIDER_TRUST_DOMAIN_CERT_ALIAS.getName()).asString();

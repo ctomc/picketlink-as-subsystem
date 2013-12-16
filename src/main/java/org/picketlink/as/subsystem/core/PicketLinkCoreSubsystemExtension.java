@@ -38,6 +38,7 @@ import javax.enterprise.inject.spi.ProcessAnnotatedType;
  * @author <a href="mailto:sthorger@redhat.com">Stian Thorgersen</a>
  * @author Pedro Igor
  */
+//todo @ApplicationScoped & Extension at same time? that violates CDI spec
 @ApplicationScoped
 public class PicketLinkCoreSubsystemExtension implements Extension {
 

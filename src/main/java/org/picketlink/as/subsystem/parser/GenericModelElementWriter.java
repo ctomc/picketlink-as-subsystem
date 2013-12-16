@@ -69,7 +69,7 @@ public class GenericModelElementWriter extends AbstractModelWriter {
             if (this.getParentElement() != null) {
                 writer.writeStartElement(this.getParentElement().getName());                
             }
-
+            //todo this should use SimpleAttributeDefinition.marshallAsAttribute/marshallAsElement
             for (ModelNode modelNode : property.asProperty().getValue().asList()) {
                 writer.writeStartElement(this.getModelElement().getName());
                 

@@ -67,6 +67,7 @@ public class KeyProviderWriteAttributeHandler extends AbstractWriteAttributeHand
     @Override
     protected void revertUpdateToRuntime(OperationContext context, ModelNode operation, String attributeName,
             ModelNode valueToRestore, ModelNode valueToRevert, Void handback) throws OperationFailedException {
+        //todo, should not be empty
     }
 
 }

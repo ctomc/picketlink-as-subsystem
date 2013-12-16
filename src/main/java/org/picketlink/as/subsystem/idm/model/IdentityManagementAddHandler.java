@@ -66,8 +66,10 @@ public class IdentityManagementAddHandler extends AbstractResourceAddStepHandler
     protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model,
                                   final ServiceVerificationHandler verificationHandler, final List<ServiceController<?>> newControllers)
             throws OperationFailedException {
+        //todo should be using AttributeDefintion.resolveModelAttribute(context,model) and not use operation
         final String alias = operation.get(ModelElement.COMMON_ALIAS.getName()).asString();
 
+        //todo should be using AttributeDefintion.resolveModelAttribute(context,model) and not use operation
         ModelNode jndiNameNode = operation.get(ModelElement.IDENTITY_MANAGEMENT_JNDI_NAME.getName());
 
         final String jndiName;
@@ -109,7 +111,7 @@ public class IdentityManagementAddHandler extends AbstractResourceAddStepHandler
 
         ServiceController<PartitionManager> controller = serviceBuilder.addListener(verificationHandler)
                 .setInitialMode(Mode.PASSIVE).install();
-
+        //todo this can be null
         newControllers.add(controller);
     }
 
@@ -122,7 +124,9 @@ public class IdentityManagementAddHandler extends AbstractResourceAddStepHandler
     }
 
     private void configureJPAStoreDependencies(final ServiceBuilder<PartitionManager> serviceBuilder, final ResourceEntry identityStoreResource) {
+        //todo should be using AttributeDefintion.resolveModelAttribute(context,model)
         ModelNode jpaDataSourceNode = identityStoreResource.getModel().get(ModelElement.JPA_STORE_DATASOURCE.getName());
+        //todo should be using AttributeDefintion.resolveModelAttribute(context,model)
         ModelNode jpaEntityManagerFactoryNode = identityStoreResource.getModel().get(ModelElement.JPA_STORE_ENTITY_MANAGER_FACTORY.getName());
 
         String dataSourceJndiName = null;

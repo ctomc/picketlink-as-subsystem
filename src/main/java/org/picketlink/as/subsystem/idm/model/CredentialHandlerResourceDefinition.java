@@ -34,6 +34,7 @@ import org.picketlink.as.subsystem.model.ModelElement;
  */
 public class CredentialHandlerResourceDefinition extends AbstractResourceDefinition {
 
+    //todo this must support expressions
     public static final SimpleAttributeDefinition CLASS = new SimpleAttributeDefinitionBuilder(
             ModelElement.COMMON_CLASS.getName(), ModelType.STRING, false)
             .setAllowExpression(false).build();

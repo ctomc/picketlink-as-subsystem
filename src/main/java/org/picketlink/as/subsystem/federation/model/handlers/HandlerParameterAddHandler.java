@@ -31,6 +31,7 @@ import org.jboss.msc.service.ServiceController;
 import org.picketlink.as.subsystem.federation.service.AbstractEntityProviderService;
 import org.picketlink.as.subsystem.federation.service.IdentityProviderService;
 import org.picketlink.as.subsystem.federation.service.ServiceProviderService;
+import org.picketlink.as.subsystem.idm.model.IdentityConfigurationResourceDefinition;
 import org.picketlink.as.subsystem.model.AbstractResourceAddStepHandler;
 import org.picketlink.as.subsystem.model.ModelElement;
 import org.picketlink.config.federation.KeyValueType;
@@ -62,10 +63,14 @@ public class HandlerParameterAddHandler extends AbstractResourceAddStepHandler {
     protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model,
             ServiceVerificationHandler verificationHandler, List<ServiceController<?>> newControllers)
             throws OperationFailedException {
+        //todo it should be using PathAddress and operations on it
         String providerAlias = operation.get(ModelDescriptionConstants.ADDRESS).asPropertyList().get(2).getValue().asString();
         String handlerClassName = operation.get(ModelDescriptionConstants.ADDRESS).asPropertyList().get(3).getValue().asString();
+        //todo should be using AttributeDefintion.resolveModelAttribute(context,model) and not use operation at all!
         String paramName = operation.get(ModelElement.COMMON_NAME.getName()).asString();
+        //todo should be using AttributeDefintion.resolveModelAttribute(context,model) and not use operation at all!
         String paramValue = operation.get(ModelElement.COMMON_VALUE.getName()).asString();
+        //todo Key=value resources are really redundant in such way, there are so many better ways to address this.
 
         AbstractEntityProviderService providerService = getParentProviderService(context, providerAlias);
 

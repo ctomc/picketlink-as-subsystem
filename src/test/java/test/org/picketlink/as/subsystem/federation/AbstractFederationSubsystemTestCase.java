@@ -22,6 +22,8 @@
 
 package test.org.picketlink.as.subsystem.federation;
 
+import java.io.IOException;
+
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.dmr.ModelNode;
 import org.jboss.msc.service.ServiceName;
@@ -101,4 +103,6 @@ public class AbstractFederationSubsystemTestCase extends AbstractPicketLinkSubsy
     protected String getSubsystemXmlFileName() {
         return "picketlink-subsystem-federation.xml";
     }
+
+
 }

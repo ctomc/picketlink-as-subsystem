@@ -38,10 +38,11 @@ public class SAMLResourceDefinition extends AbstractResourceDefinition {
 
     public static final SAMLResourceDefinition INSTANCE = new SAMLResourceDefinition();
 
+    //todo why no expression support?
     public static final SimpleAttributeDefinition TOKEN_TIMEOUT = new SimpleAttributeDefinitionBuilder(
             ModelElement.SAML_TOKEN_TIMEOUT.getName(), ModelType.INT, true).setDefaultValue(new ModelNode().set(5000))
             .setAllowExpression(false).build();
-
+    //todo why no expression support?
     public static final SimpleAttributeDefinition CLOCK_SKEW = new SimpleAttributeDefinitionBuilder(
             ModelElement.SAML_CLOCK_SKEW.getName(), ModelType.INT, true).setDefaultValue(new ModelNode().set(0))
             .setAllowExpression(false).build();

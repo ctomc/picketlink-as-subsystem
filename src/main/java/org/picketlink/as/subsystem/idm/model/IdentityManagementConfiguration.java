@@ -50,6 +50,7 @@ import java.util.Set;
  */
 public class IdentityManagementConfiguration {
 
+    //todo why is storeType not enum?
     public static IdentityStoreConfigurationBuilder configureStore(String storeType, ResourceEntry resource, final NamedIdentityConfigurationBuilder builder, final PartitionManagerService partitionManagerService) {
         IdentityStoreConfigurationBuilder storeConfig = null;
         ModelNode modelNode = resource.getModel();

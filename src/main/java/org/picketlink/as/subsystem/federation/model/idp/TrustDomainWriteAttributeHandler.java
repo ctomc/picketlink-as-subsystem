@@ -30,6 +30,7 @@ import org.jboss.dmr.ModelNode;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
+//todo this does noting, it should use ReloadRequiredWriteAttributeHandler
 public class TrustDomainWriteAttributeHandler extends AbstractWriteAttributeHandler<Void> {
 
     public static final TrustDomainWriteAttributeHandler INSTANCE = new TrustDomainWriteAttributeHandler();

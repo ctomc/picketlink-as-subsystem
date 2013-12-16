@@ -36,6 +36,7 @@ import org.picketlink.as.subsystem.model.ModelElement;
  */
 public class JPAStoreResourceDefinition extends AbstractResourceDefinition {
 
+    //todo all attributes need to support expressions
     public static final SimpleAttributeDefinition DATA_SOURCE = new SimpleAttributeDefinitionBuilder(
             ModelElement.JPA_STORE_DATASOURCE.getName(), ModelType.STRING, true)
             .setAllowExpression(false).build();

@@ -36,7 +36,7 @@ import org.picketlink.as.subsystem.model.ModelElement;
 public class KeyProviderResourceDefinition extends AbstractResourceDefinition {
 
     public static final KeyProviderResourceDefinition INSTANCE = new KeyProviderResourceDefinition();
-
+    //todo all attributes must support expressions
     public static final SimpleAttributeDefinition URL = new SimpleAttributeDefinitionBuilder(
             ModelElement.COMMON_URL.getName(), ModelType.STRING, false).setAllowExpression(false).build();
     public static final SimpleAttributeDefinition PASSWD = new SimpleAttributeDefinitionBuilder(

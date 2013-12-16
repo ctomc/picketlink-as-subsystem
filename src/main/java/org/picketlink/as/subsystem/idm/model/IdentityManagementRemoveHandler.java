@@ -51,6 +51,7 @@ public class IdentityManagementRemoveHandler extends AbstractRemoveStepHandler {
         String alias = operation.get(ModelElement.COMMON_ALIAS.getName()).asString();
 
         context.removeService(PartitionManagerService.createServiceName(alias));
+        //todo this is odd? why would you need to reload after you have already removed service? problem with not properly defining service dependancy graph?
         context.reloadRequired();
         context.completeStep(OperationContext.ResultHandler.NOOP_RESULT_HANDLER);
     }

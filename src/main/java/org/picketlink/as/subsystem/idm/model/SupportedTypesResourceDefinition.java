@@ -34,6 +34,7 @@ import org.picketlink.as.subsystem.model.ModelElement;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * @since Mar 16, 2012
  */
+//todo all attributes need to support expressions
 public class SupportedTypesResourceDefinition extends AbstractResourceDefinition {
 
     public static final SimpleAttributeDefinition SUPPORTS_ALL = new SimpleAttributeDefinitionBuilder(

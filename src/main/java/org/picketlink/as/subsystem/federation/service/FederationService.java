@@ -117,7 +117,7 @@ public class FederationService implements Service<FederationService> {
     public static ServiceName createServiceName(String alias) {
         return ServiceName.JBOSS.append(SERVICE_NAME, alias);
     }
-    
+    //todo this should not exist! identityProviderService must be injected not set in lifecycle methods of another service
     public void setIdentityProviderService(IdentityProviderService identityProviderService) {
         this.identityProviderService = identityProviderService;
     }

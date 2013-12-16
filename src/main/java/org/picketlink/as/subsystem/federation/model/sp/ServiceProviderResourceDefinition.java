@@ -38,7 +38,7 @@ import org.picketlink.as.subsystem.model.ModelElement;
 public class ServiceProviderResourceDefinition extends AbstractResourceDefinition {
 
     public static final ServiceProviderResourceDefinition INSTANCE = new ServiceProviderResourceDefinition();
-
+    //TODO all attributes must support expressions
     public static final SimpleAttributeDefinition ALIAS = new SimpleAttributeDefinitionBuilder(
             ModelElement.COMMON_ALIAS.getName(), ModelType.STRING, false).setDefaultValue(new ModelNode().set("sp"))
             .setAllowExpression(false).build();

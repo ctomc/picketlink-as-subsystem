@@ -78,7 +78,7 @@ public class FederationAddHandler extends AbstractResourceAddStepHandler {
         ServiceName serviceName = FederationService.createServiceName(alias);
         ServiceController<FederationService> controller = context.getServiceTarget().addService(serviceName, service)
                 .addListener(verificationHandler).setInitialMode(Mode.ACTIVE).install();
-
+        //this can be null
         newControllers.add(controller);
     }
 

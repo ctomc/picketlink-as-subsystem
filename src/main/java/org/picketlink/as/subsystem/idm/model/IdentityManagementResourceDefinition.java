@@ -37,6 +37,7 @@ public class IdentityManagementResourceDefinition extends AbstractResourceDefini
 
     public static final IdentityManagementResourceDefinition INSTANCE = new IdentityManagementResourceDefinition();
 
+    //todo all attributes need to support expressions
     public static final SimpleAttributeDefinition ALIAS = new SimpleAttributeDefinitionBuilder(
             ModelElement.COMMON_ALIAS.getName(), ModelType.STRING, false)
             .setAllowExpression(false).build();

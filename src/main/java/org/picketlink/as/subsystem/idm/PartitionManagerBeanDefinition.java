@@ -54,6 +54,7 @@ import static org.picketlink.as.subsystem.PicketLinkMessages.*;
  */
 public class PartitionManagerBeanDefinition implements Bean<PartitionManager> {
 
+    //todo memory leak here we come!
     private BeanManager beanManager;
     private InjectionTarget<PartitionManager> injectionTarget;
     private List<IdentityConfiguration> configuration;

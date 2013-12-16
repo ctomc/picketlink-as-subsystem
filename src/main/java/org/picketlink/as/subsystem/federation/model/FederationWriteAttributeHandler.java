@@ -30,6 +30,7 @@ import org.jboss.dmr.ModelNode;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
+//todo this is useless, it should be replaced by using ReloadRequiredWriteAttributeHandler
 public class FederationWriteAttributeHandler extends AbstractWriteAttributeHandler<Void> {
 
     public static final FederationWriteAttributeHandler INSTANCE = new FederationWriteAttributeHandler();

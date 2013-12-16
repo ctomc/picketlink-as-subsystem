@@ -22,6 +22,8 @@
 
 package org.picketlink.as.subsystem.federation.model.handlers;
 
+import java.util.List;
+
 import org.jboss.as.controller.OperationStepHandler;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinitionBuilder;
@@ -36,14 +38,16 @@ import org.picketlink.as.subsystem.model.ModelElement;
 public class HandlerParameterResourceDefinition extends AbstractResourceDefinition {
 
     public static final HandlerParameterResourceDefinition INSTANCE = new HandlerParameterResourceDefinition();
-
+    //todo name clashes with, name of resource and it should not be used as such.
     public static final SimpleAttributeDefinition NAME = new SimpleAttributeDefinitionBuilder(
             ModelElement.COMMON_NAME.getName(), ModelType.STRING, false).setAllowExpression(false).build();
 
+    //todo why no expression support?
     public static final SimpleAttributeDefinition VALUE = new SimpleAttributeDefinitionBuilder(
             ModelElement.COMMON_VALUE.getName(), ModelType.STRING, false).setAllowExpression(false).build();
 
     static {
+        //todo this just looks odd, overriding getAttributes() method seems more in place
         INSTANCE.addAttribute(NAME);
         INSTANCE.addAttribute(VALUE);
     }

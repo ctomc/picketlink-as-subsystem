@@ -80,6 +80,7 @@ public abstract class AbstractEntityProviderService<T extends PicketLinkFederati
     }
     
     public AbstractEntityProviderService(OperationContext context, ModelNode operation) {
+        //todo this should be injected! never ever do this!
         this.federationService = FederationService.getService(context.getServiceRegistry(true), operation);
         this.configuration = toProviderType(operation);
         this.configuration.setKeyProvider(this.federationService.getKeyProvider());

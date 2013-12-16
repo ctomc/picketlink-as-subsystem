@@ -44,6 +44,7 @@ public class FederationResourceDefinition extends AbstractResourceDefinition {
 
     public static final FederationResourceDefinition INSTANCE = new FederationResourceDefinition();
 
+    //todo attribute must support expressions
     public static final SimpleAttributeDefinition ALIAS = new SimpleAttributeDefinitionBuilder(COMMON_ALIAS.getName(),
             ModelType.STRING, false).setDefaultValue(new ModelNode().set("localhost")).setAllowExpression(false).build();
 

@@ -27,6 +27,7 @@ import java.io.IOException;
 import junit.framework.Assert;
 
 import org.apache.commons.io.FileUtils;
+import org.jboss.as.subsystem.test.AbstractSubsystemBaseTest;
 import org.jboss.as.subsystem.test.AbstractSubsystemTest;
 import org.jboss.as.subsystem.test.AdditionalInitialization;
 import org.jboss.as.subsystem.test.KernelServices;
@@ -41,7 +42,7 @@ import org.picketlink.as.subsystem.PicketLinkExtension;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
-public abstract class AbstractPicketLinkSubsystemTestCase extends AbstractSubsystemTest {
+public abstract class AbstractPicketLinkSubsystemTestCase extends AbstractSubsystemBaseTest {
 
     protected static final String FAKE_AS7_INSTALLATION_DIR = "target/jboss-as7-fake";
     protected static final String FAKE_AS7_DEPLOYMENTS = FAKE_AS7_INSTALLATION_DIR + "/deployments";
@@ -92,7 +93,7 @@ public abstract class AbstractPicketLinkSubsystemTestCase extends AbstractSubsys
             try {
                 KernelServicesBuilder createKernelServicesBuilder = super.createKernelServicesBuilder(new AdditionalInitialization());
                 
-                createKernelServicesBuilder.setSubsystemXml(getValidSubsystemXML());
+                createKernelServicesBuilder.setSubsystemXml(getSubsystemXml());
                 
                 this.kernelServices = createKernelServicesBuilder.build();
                 
@@ -125,6 +126,11 @@ public abstract class AbstractPicketLinkSubsystemTestCase extends AbstractSubsys
     }
 
     protected abstract String getSubsystemXmlFileName();
+
+    @Override
+    protected String getSubsystemXml() throws IOException {
+        return getValidSubsystemXML();
+    }
 
     /**
      * <p>

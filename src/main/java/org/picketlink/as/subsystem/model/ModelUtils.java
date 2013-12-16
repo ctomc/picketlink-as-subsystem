@@ -51,6 +51,7 @@ public class ModelUtils {
      * @param fromModel
      * @return
      */
+    //todo this is wrong on so many levels
     public static String getFederationAlias(ModelNode fromModel) {
         return fromModel.get(ModelDescriptionConstants.ADDRESS).asPropertyList().get(1).getValue().asString();
     }
@@ -85,6 +86,7 @@ public class ModelUtils {
      * @param model
      * @return
      */
+    //todo this should not be done here, but in add handler itself, using AttributeDefinition.resolveModelAttribute(context,model), note! not operation but model!
     public static final STSConfiguration toSAMLConfig(ModelNode fromModel) {
         int tokenTimeout = fromModel.get(ModelElement.SAML_TOKEN_TIMEOUT.getName()).asInt();
         int clockSkew = fromModel.get(ModelElement.SAML_CLOCK_SKEW.getName()).asInt();
@@ -107,19 +109,21 @@ public class ModelUtils {
      */
     public static SPConfiguration toSPConfig(ModelNode fromModel) {
         SPConfiguration spType = new SPConfiguration();
-        
+        //todo resolving should be done via AttributeDefinition.resolveModelAttribute(context,model)
         String alias = fromModel.get(COMMON_ALIAS.getName()).asString();
         
         spType.setAlias(alias);
-        
+
+        //todo resolving should be done via AttributeDefinition.resolveModelAttribute(context,model)
         String url = fromModel.get(COMMON_URL.getName()).asString();
         
         spType.setServiceURL(url);
-        
+        //todo resolving should be done via AttributeDefinition.resolveModelAttribute(context,model)
         String securityDomain = fromModel.get(COMMON_SECURITY_DOMAIN.getName()).asString();
         
         spType.setSecurityDomain(securityDomain);
-        
+        //todo resolving should be done via AttributeDefinition.resolveModelAttribute(context,model)
+        //todo there is not protection what happens if this is not defined? this should be done in validateModel() in MODEL phase...
         boolean postBinding = fromModel.get(SERVICE_PROVIDER_POST_BINDING.getName()).asBoolean();
         
         if (postBinding) {
@@ -129,25 +133,26 @@ public class ModelUtils {
         }
         
         spType.setPostBinding(postBinding);
-        
+
+        //todo resolving should be done via AttributeDefinition.resolveModelAttribute(context,model)
         ModelNode supportsSignatures = fromModel.get(COMMON_SUPPORTS_SIGNATURES.getName());
         
         if (supportsSignatures.isDefined()) {
             spType.setSupportsSignature(supportsSignatures.asBoolean());
         }
-        
+        //todo resolving should be done via AttributeDefinition.resolveModelAttribute(context,model)
         ModelNode strictPostBinding = fromModel.get(COMMON_STRICT_POST_BINDING.getName());
         
         if (strictPostBinding.isDefined()) {
             spType.setIdpUsesPostBinding(strictPostBinding.asBoolean());
         }
-
+        //todo resolving should be done via AttributeDefinition.resolveModelAttribute(context,model)
         ModelNode errorPage = fromModel.get(SERVICE_PROVIDER_ERROR_PAGE.getName());
         
         if (errorPage.isDefined()) {
             spType.setErrorPage(errorPage.asString());
         }
-
+        //todo resolving should be done via AttributeDefinition.resolveModelAttribute(context,model)
         ModelNode logoutPage = fromModel.get(SERVICE_PROVIDER_LOGOUT_PAGE.getName());
         
         if (logoutPage.isDefined()) {
@@ -167,43 +172,43 @@ public class ModelUtils {
      */
     public static IDPConfiguration toIDPConfig(ModelNode fromModel) {
         IDPConfiguration idpType = new IDPConfiguration();
-        
+        //todo resolving should be done via AttributeDefinition.resolveModelAttribute(context,model)
         String alias = fromModel.get(COMMON_ALIAS.getName()).asString();
         
         idpType.setAlias(alias);
-        
+        //todo resolving should be done via AttributeDefinition.resolveModelAttribute(context,model)
         String url = fromModel.get(COMMON_URL.getName()).asString();
         
         idpType.setIdentityURL(url);
-        
+        //todo resolving should be done via AttributeDefinition.resolveModelAttribute(context,model)
         ModelNode supportsSignatures = fromModel.get(COMMON_SUPPORTS_SIGNATURES.getName());
         
         if (supportsSignatures.isDefined()) {
             idpType.setSupportsSignature(supportsSignatures.asBoolean());
         }
-
+        //todo resolving should be done via AttributeDefinition.resolveModelAttribute(context,model)
         ModelNode encrypt = fromModel.get(IDENTITY_PROVIDER_ENCRYPT.getName());
         
         if (encrypt.isDefined()) {
             idpType.setEncrypt(encrypt.asBoolean());
         }
-
+        //todo resolving should be done via AttributeDefinition.resolveModelAttribute(context,model)
         ModelNode strictPostBinding = fromModel.get(COMMON_STRICT_POST_BINDING.getName());
         
         if (strictPostBinding.isDefined()) {
             idpType.setStrictPostBinding(strictPostBinding.asBoolean());
         }
-
+        //todo resolving should be done via AttributeDefinition.resolveModelAttribute(context,model)
         String securityDomain = fromModel.get(COMMON_SECURITY_DOMAIN.getName()).asString();
         
         idpType.setSecurityDomain(securityDomain);
-
+        //todo resolving should be done via AttributeDefinition.resolveModelAttribute(context,model)
         ModelNode attributeManager = fromModel.get(ModelElement.IDENTITY_PROVIDER_ATTRIBUTE_MANAGER.getName());
         
         if (attributeManager.isDefined()) {
             idpType.setAttributeManager(attributeManager.asString());
         }
-
+        //todo resolving should be done via AttributeDefinition.resolveModelAttribute(context,model)
         ModelNode roleGenerator = fromModel.get(ModelElement.IDENTITY_PROVIDER_ROLE_GENERATOR.getName());
         
         if (roleGenerator.isDefined()) {
@@ -221,14 +226,16 @@ public class ModelUtils {
      * @param model
      * @return
      */
+    //todo move to add handler
     public static KeyProviderType toKeyProviderType(ModelNode model) {
         KeyProviderType keyProviderType = new KeyProviderType();
-        
+        //todo resolving should be done via AttributeDefinition.resolveModelAttribute(context,model)
         keyProviderType.setSigningAlias(model.get(ModelElement.KEY_STORE_SIGN_KEY_ALIAS.getName()).asString());
         
         AuthPropertyType keyStoreURL = new AuthPropertyType();
         
         keyStoreURL.setKey("KeyStoreURL");
+        //todo resolving should be done via AttributeDefinition.resolveModelAttribute(context,model)
         keyStoreURL.setValue(model.get(ModelElement.COMMON_URL.getName()).asString());
         
         keyProviderType.add(keyStoreURL);
@@ -236,6 +243,7 @@ public class ModelUtils {
         AuthPropertyType keyStorePass = new AuthPropertyType();
 
         keyStorePass.setKey("KeyStorePass");
+        //todo resolving should be done via AttributeDefinition.resolveModelAttribute(context,model)
         keyStorePass.setValue(model.get(ModelElement.KEY_STORE_PASSWD.getName()).asString());
 
         keyProviderType.add(keyStorePass);
@@ -243,6 +251,7 @@ public class ModelUtils {
         AuthPropertyType signingKeyPass = new AuthPropertyType();
 
         signingKeyPass.setKey("SigningKeyPass");
+        //todo resolving should be done via AttributeDefinition.resolveModelAttribute(context,model)
         signingKeyPass.setValue(model.get(ModelElement.KEY_STORE_SIGN_KEY_PASSWD.getName()).asString());
 
         keyProviderType.add(signingKeyPass);
@@ -250,6 +259,7 @@ public class ModelUtils {
         AuthPropertyType signingKeyAlias = new AuthPropertyType();
 
         signingKeyAlias.setKey("SigningKeyAlias");
+        //todo resolving should be done via AttributeDefinition.resolveModelAttribute(context,model)
         signingKeyAlias.setValue(model.get(ModelElement.KEY_STORE_SIGN_KEY_ALIAS.getName()).asString());
 
         keyProviderType.add(signingKeyAlias);

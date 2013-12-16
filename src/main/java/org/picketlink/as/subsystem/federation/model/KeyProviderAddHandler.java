@@ -55,7 +55,7 @@ public class KeyProviderAddHandler extends AbstractResourceAddStepHandler {
             ServiceVerificationHandler verificationHandler, List<ServiceController<?>> newControllers)
             throws OperationFailedException {
         KeyProviderType keyProviderType = toKeyProviderType(model);
-        
+        //TODO all model resolving should be done here!
         FederationService federationService = FederationService.getService(context.getServiceRegistry(true), operation);
         
         federationService.setKeyProvider(keyProviderType);

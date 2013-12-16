@@ -70,7 +70,7 @@ public class SPWriteAttributeHandler extends AbstractWriteAttributeHandler<Void>
     @Override
     protected void revertUpdateToRuntime(OperationContext context, ModelNode operation, String attributeName,
             ModelNode valueToRestore, ModelNode valueToRevert, Void handback) throws OperationFailedException {
-
+         //todo this should not be empty
     }
 
 }

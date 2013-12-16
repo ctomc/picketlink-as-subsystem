@@ -30,6 +30,7 @@ import org.jboss.dmr.ModelNode;
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
+//todo replace with ReloadRequiredRemoveStepHandler
 public class SAMLRemoveHandler extends AbstractRemoveStepHandler {
 
     public static final SAMLRemoveHandler INSTANCE = new SAMLRemoveHandler();

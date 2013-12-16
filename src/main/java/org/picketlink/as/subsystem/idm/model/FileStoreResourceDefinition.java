@@ -35,7 +35,7 @@ import org.picketlink.as.subsystem.model.ModelElement;
  * @since Mar 16, 2012
  */
 public class FileStoreResourceDefinition extends AbstractResourceDefinition {
-
+    //todo all attributes must support expressions
     public static final SimpleAttributeDefinition WORKING_DIR = new SimpleAttributeDefinitionBuilder(
             ModelElement.FILE_STORE_WORKING_DIR.getName(), ModelType.STRING, true)
             .setAllowExpression(false).build();

@@ -21,6 +21,8 @@
  */
 package test.org.picketlink.as.subsystem;
 
+import java.io.IOException;
+
 import junit.framework.Assert;
 import org.jboss.dmr.ModelNode;
 import org.junit.Test;
@@ -41,7 +43,8 @@ public class ParseCompleteDomainModelTestCase extends AbstractPicketLinkSubsyste
      */
     @Test
     public void testParseSubsystem() throws Exception {
-        Assert.assertNotNull("No operations found. Check if the XML used is valid.", super.parse(getValidSubsystemXML()));
+        Assert.assertNotNull("No operations found. Check if the XML used is valid.", super.parse(getSubsystemXml()));
+
     }
 
     /**
@@ -61,5 +64,4 @@ public class ParseCompleteDomainModelTestCase extends AbstractPicketLinkSubsyste
     protected String getSubsystemXmlFileName() {
         return "picketlink-subsystem.xml";
     }
-
 }

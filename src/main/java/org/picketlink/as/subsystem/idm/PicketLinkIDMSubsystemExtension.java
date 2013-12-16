@@ -34,6 +34,7 @@ import javax.enterprise.inject.spi.Extension;
  * @author <a href="mailto:sthorger@redhat.com">Stian Thorgersen</a>
  * @author Pedro Igor
  */
+//todo where does this come to play? does whole extension module becomes CDI bean archive?
 public class PicketLinkIDMSubsystemExtension implements Extension {
 
     public void installPartitionManagerBeanDefinition(@Observes AfterBeanDiscovery event, BeanManager beanManager) {

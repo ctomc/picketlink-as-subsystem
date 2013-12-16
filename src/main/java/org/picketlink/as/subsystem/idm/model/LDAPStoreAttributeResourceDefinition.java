@@ -34,8 +34,9 @@ import org.picketlink.as.subsystem.model.ModelElement;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * @since Mar 16, 2012
  */
+//todo all attributes need to support expressions
 public class LDAPStoreAttributeResourceDefinition extends AbstractResourceDefinition {
-
+    //todo there should not be any attribute named "name" on resource as it already exists!
     public static final SimpleAttributeDefinition NAME = new SimpleAttributeDefinitionBuilder(
             ModelElement.LDAP_STORE_ATTRIBUTE_NAME.getName(), ModelType.STRING, false).setAllowExpression(false).build();
 

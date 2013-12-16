@@ -30,6 +30,7 @@ import org.jboss.dmr.ModelNode;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
+//todo this should do something? otherwise you should just use ReloadRequiredWriteAttributeHandler.INSTANCE
 public class HandlerParameterWriteAttributeHandler extends AbstractWriteAttributeHandler<Void> {
 
     public static final HandlerParameterWriteAttributeHandler INSTANCE = new HandlerParameterWriteAttributeHandler();

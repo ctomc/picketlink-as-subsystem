@@ -33,6 +33,7 @@ import org.picketlink.as.subsystem.federation.service.IdentityProviderService;
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
+//todo this could use ServiceRemoveStepHandler
 public class IdentityProviderRemoveHandler extends AbstractRemoveStepHandler {
 
     public static final IdentityProviderRemoveHandler INSTANCE = new IdentityProviderRemoveHandler();

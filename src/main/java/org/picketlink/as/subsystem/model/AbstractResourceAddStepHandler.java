@@ -31,6 +31,7 @@ import org.jboss.dmr.ModelNode;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * @since Mar 26, 2012
  */
+//todo this could be elimiated as similar stuff can be done with "stock" api
 public class AbstractResourceAddStepHandler extends AbstractAddStepHandler {
 
     private ModelElement modelElement;
