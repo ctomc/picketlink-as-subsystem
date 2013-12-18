@@ -281,11 +281,8 @@ public class IdentityManagementConfiguration {
 
             for (ResourceEntry attribute : attributes) {
                 ModelNode attributeModel = attribute.getModel();
-
                 String name = attributeModel.get(ModelElement.LDAP_STORE_ATTRIBUTE_NAME.getName()).asString();
-
                 String ldapName = LDAPStoreAttributeResourceDefinition.LDAP_NAME.resolveModelAttribute(context, attributeModel).asString();
-
                 ModelNode readOnlyModelNode = LDAPStoreAttributeResourceDefinition.READ_ONLY.resolveModelAttribute(context, attributeModel);
 
                 if (readOnlyModelNode.isDefined() && readOnlyModelNode.asBoolean()) {

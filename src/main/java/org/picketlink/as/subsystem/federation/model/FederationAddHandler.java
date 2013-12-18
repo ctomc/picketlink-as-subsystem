@@ -31,10 +31,12 @@ import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.as.controller.registry.Resource;
 import org.jboss.as.web.WebSubsystemServices;
 import org.jboss.dmr.ModelNode;
+import org.jboss.dmr.Property;
 import org.jboss.msc.service.ServiceBuilder;
 import org.jboss.msc.service.ServiceController;
 import org.jboss.msc.service.ServiceController.Mode;
 import org.jboss.msc.service.ServiceName;
+import org.picketlink.as.subsystem.federation.model.idp.IdentityProviderResourceDefinition;
 import org.picketlink.as.subsystem.federation.service.FederationService;
 import org.picketlink.as.subsystem.federation.service.IdentityProviderService;
 import org.picketlink.as.subsystem.federation.service.ServiceProviderService;
@@ -46,9 +48,7 @@ import org.picketlink.identity.federation.core.config.SPConfiguration;
 import org.picketlink.identity.federation.core.config.STSConfiguration;
 
 import java.util.List;
-import java.util.Set;
 
-import static org.jboss.as.controller.registry.Resource.ResourceEntry;
 import static org.picketlink.as.subsystem.model.ModelUtils.toSAMLConfig;
 
 /**
@@ -92,36 +92,34 @@ public class FederationAddHandler extends AbstractAddStepHandler {
                                          ServiceVerificationHandler verificationHandler, List<ServiceController<?>> newControllers) throws OperationFailedException {
         PathAddress pathAddress = PathAddress.pathAddress(operation.get(ModelDescriptionConstants.OP_ADDR));
         String federationAlias = pathAddress.getLastElement().getValue();
-        Resource federation = context.readResourceFromRoot(pathAddress);
+        ModelNode federation = Resource.Tools.readModel(context.readResource(PathAddress.EMPTY_ADDRESS));
 
-        final STSConfiguration stsConfiguration;
+        STSConfiguration stsConfiguration = null;
 
-        if (federation.hasChildren(ModelElement.SAML.getName())) {
-            ResourceEntry samlConfiguration = federation.getChildren(ModelElement.SAML.getName()).iterator().next();
-            stsConfiguration = toSAMLConfig(context, samlConfiguration.getModel());
-        } else {
-            stsConfiguration = null;
+        if (federation.hasDefined(ModelElement.SAML.getName())) {
+            ModelNode samlConfiguration = federation.get(ModelElement.SAML.getName()).asProperty().getValue();
+            stsConfiguration = toSAMLConfig(context, samlConfiguration);
         }
 
         KeyProviderType keyProviderType = null;
 
-        if (federation.hasChildren(ModelElement.KEY_STORE.getName())) {
-            ResourceEntry keyStoreConfiguration = federation.getChildren(ModelElement.KEY_STORE.getName()).iterator().next();
-            keyProviderType = ModelUtils.toKeyProviderType(context, keyStoreConfiguration.getModel());
+        if (federation.hasDefined(ModelElement.KEY_STORE.getName())) {
+            ModelNode keyStoreConfiguration = federation.get(ModelElement.KEY_STORE.getName()).asProperty().getValue();
+            keyProviderType = ModelUtils.toKeyProviderType(context, keyStoreConfiguration);
         }
 
         final IDPConfiguration idpConfiguration;
 
-        if (federation.hasChildren(ModelElement.IDENTITY_PROVIDER.getName())) {
-            ResourceEntry identityProvider = federation.getChildren(ModelElement.IDENTITY_PROVIDER.getName()).iterator().next();
+        if (federation.hasDefined(ModelElement.IDENTITY_PROVIDER.getName())) {
+            ModelNode identityProvider = federation.get(ModelElement.IDENTITY_PROVIDER.getName()).asProperty().getValue();
+            String alias = IdentityProviderResourceDefinition.ALIAS.resolveModelAttribute(context, identityProvider).asString();
+            idpConfiguration = ModelUtils.toIDPConfig(context, identityProvider);
 
-            idpConfiguration = ModelUtils.toIDPConfig(context, identityProvider.getModel());
-
-            idpConfiguration.setAlias(identityProvider.getName());
+            idpConfiguration.setAlias(identityProvider.asString());
 
             idpConfiguration.setKeyProvider(keyProviderType);
 
-            ServiceName name = IdentityProviderService.createServiceName(identityProvider.getName());
+            ServiceName name = IdentityProviderService.createServiceName(alias);
             IdentityProviderService identityProviderService = new IdentityProviderService(idpConfiguration, stsConfiguration);
             ServiceBuilder<IdentityProviderService> serviceBuilder = context.getServiceTarget().addService(name, identityProviderService);
 
@@ -136,17 +134,19 @@ public class FederationAddHandler extends AbstractAddStepHandler {
             idpConfiguration = null;
         }
 
-        if (federation.hasChildren(ModelElement.SERVICE_PROVIDER.getName())) {
-            Set<ResourceEntry> serviceProviders = federation.getChildren(ModelElement.SERVICE_PROVIDER.getName());
+        if (federation.hasDefined(ModelElement.SERVICE_PROVIDER.getName())) {
+            ModelNode serviceProviders = federation.get(ModelElement.SERVICE_PROVIDER.getName());
 
-            for (ResourceEntry serviceProvider : serviceProviders) {
-                SPConfiguration spConfiguration = ModelUtils.toSPConfig(context, serviceProvider.getModel());
+            for (Property property : serviceProviders.asPropertyList()) {
+                ModelNode serviceProvider = property.getValue();
+                String alias = IdentityProviderResourceDefinition.ALIAS.resolveModelAttribute(context, serviceProvider).asString();
+                SPConfiguration spConfiguration = ModelUtils.toSPConfig(context, serviceProvider);
 
                 spConfiguration.setIdentityURL(idpConfiguration.getIdentityURL());
 
                 spConfiguration.setKeyProvider(keyProviderType);
 
-                ServiceName name = IdentityProviderService.createServiceName(serviceProvider.getName());
+                ServiceName name = IdentityProviderService.createServiceName(alias);
                 ServiceProviderService serviceProviderService = new ServiceProviderService(spConfiguration, stsConfiguration);
                 ServiceBuilder<ServiceProviderService> serviceBuilder = context.getServiceTarget().addService(name, serviceProviderService);
 

@@ -78,7 +78,6 @@ public class IdentityManagementAddHandler extends AbstractAddStepHandler {
                                               final ServiceVerificationHandler verificationHandler,
                                               final List<ServiceController<?>> newControllers) throws OperationFailedException {
         final String alias = IdentityManagementResourceDefinition.ALIAS.resolveModelAttribute(context, model).asString();
-
         ModelNode jndiNameNode = IdentityManagementResourceDefinition.IDENTITY_MANAGEMENT_JNDI_URL.resolveModelAttribute(context, model);
 
         final String jndiName;

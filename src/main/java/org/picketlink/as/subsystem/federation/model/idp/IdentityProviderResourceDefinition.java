@@ -22,7 +22,6 @@
 
 package org.picketlink.as.subsystem.federation.model.idp;
 
-import org.jboss.as.controller.ReloadRequiredRemoveStepHandler;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinitionBuilder;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
@@ -44,7 +43,7 @@ public class IdentityProviderResourceDefinition extends AbstractResourceDefiniti
     public static final SimpleAttributeDefinition SECURITY_DOMAIN = new SimpleAttributeDefinitionBuilder(
             ModelElement.COMMON_SECURITY_DOMAIN.getName(), ModelType.STRING, false).setAllowExpression(true).build();
     public static final SimpleAttributeDefinition ALIAS = new SimpleAttributeDefinitionBuilder(
-            ModelElement.COMMON_ALIAS.getName(), ModelType.STRING, false).setDefaultValue(new ModelNode().set("idp"))
+            ModelElement.COMMON_ALIAS.getName(), ModelType.STRING, false)
             .setAllowExpression(true).build();
     public static final SimpleAttributeDefinition EXTERNAL = new SimpleAttributeDefinitionBuilder(
             ModelElement.IDENTITY_PROVIDER_EXTERNAL.getName(), ModelType.BOOLEAN, true)
