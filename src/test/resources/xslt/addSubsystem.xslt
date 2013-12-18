@@ -8,7 +8,7 @@
 
 	<xsl:output method="xml" indent="yes" />
 	
-	<!-- If the subsystem is already defined, remove it to configure it again. -->
+	<!-- If the subsystem is already defined, remove it to configureDeployment it again. -->
 	<xsl:template match="//as:profile/pl:subsystem"/>
 	
 	<xsl:template match="as:profile">

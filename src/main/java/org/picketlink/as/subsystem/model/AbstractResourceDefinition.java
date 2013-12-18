@@ -22,9 +22,6 @@
 
 package org.picketlink.as.subsystem.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationStepHandler;
 import org.jboss.as.controller.PathElement;
@@ -36,20 +33,38 @@ import org.jboss.as.controller.SimpleResourceDefinition;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.picketlink.as.subsystem.PicketLinkExtension;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * @since Mar 18, 2012
  */
 public abstract class AbstractResourceDefinition extends SimpleResourceDefinition {
 
+    private static final Map<ModelElement, List<SimpleAttributeDefinition>> attributeDefinitions;
+    private static final Map<ModelElement, List<ResourceDefinition>> childResourceDefinitions;
+
+    static {
+        attributeDefinitions = new HashMap<ModelElement, List<SimpleAttributeDefinition>>();
+        childResourceDefinitions = new HashMap<ModelElement, List<ResourceDefinition>>();
+    }
+
     private ModelElement modelElement;
     private List<SimpleAttributeDefinition> attributes = new ArrayList<SimpleAttributeDefinition>();
-    
-    protected AbstractResourceDefinition(ModelElement modelElement, final OperationStepHandler addHandler, final OperationStepHandler removeHandler) {
+
+    protected AbstractResourceDefinition(ModelElement modelElement, final OperationStepHandler addHandler, final OperationStepHandler removeHandler, SimpleAttributeDefinition... attributes) {
         super(PathElement.pathElement(modelElement.getName()), PicketLinkExtension
                 .getResourceDescriptionResolver(modelElement.getName()), addHandler,
                 removeHandler);
         this.modelElement = modelElement;
+
+        for (SimpleAttributeDefinition attributeDefinition : attributes) {
+            this.attributes.add(attributeDefinition);
+        }
     }
 
     protected AbstractResourceDefinition(ModelElement modelElement, final OperationStepHandler addHandler, SimpleAttributeDefinition... attributes) {
@@ -59,24 +74,18 @@ public abstract class AbstractResourceDefinition extends SimpleResourceDefinitio
         this.modelElement = modelElement;
         
         for (SimpleAttributeDefinition attributeDefinition : attributes) {
-            addAttribute(attributeDefinition);
+            this.attributes.add(attributeDefinition);
         }
     }
     
     @Override
     public void registerAttributes(ManagementResourceRegistration resourceRegistration) {
         for (SimpleAttributeDefinition attribute : getAttributes()) {
-            addAttributeDefinition(attribute, null, doGetAttributeWriterHandler(), resourceRegistration);
+            addAttributeDefinition(attribute, null, doGetAttributeWriterHandler(resourceRegistration), resourceRegistration);
         }
-        
-        registerResourceOperation(resourceRegistration);
     }
 
-    protected void registerResourceOperation(ManagementResourceRegistration resourceRegistration) {
-        
-    }
-
-    protected OperationStepHandler doGetAttributeWriterHandler() {
+    protected OperationStepHandler doGetAttributeWriterHandler(final ManagementResourceRegistration resourceRegistration) {
         return new ReloadRequiredWriteAttributeHandler(this.attributes.toArray(new AttributeDefinition[this.attributes.size()]));
     }
 
@@ -84,19 +93,63 @@ public abstract class AbstractResourceDefinition extends SimpleResourceDefinitio
         return this.attributes;
     }
     
-    protected void addAttribute(SimpleAttributeDefinition attribute) {
-        this.attributes.add(attribute);
-    }
-
     protected void addAttributeDefinition(SimpleAttributeDefinition definition, OperationStepHandler readHandler,
             OperationStepHandler writeHandler, ManagementResourceRegistration resourceRegistration) {
-        SubsystemDescriber.addAttributeDefinition(this.modelElement, definition);
+        addAttributeDefinition(this.modelElement, definition);
         resourceRegistration.registerReadWriteAttribute(definition, readHandler, writeHandler);
     }
 
     protected void addChildResourceDefinition(ResourceDefinition definition, ManagementResourceRegistration resourceRegistration) {
-        SubsystemDescriber.addChildResourceDefinition(this.modelElement, definition);
+        addChildResourceDefinition(this.modelElement, definition);
         resourceRegistration.registerSubModel(definition);
+    }
+
+    public static void addAttributeDefinition(ModelElement resourceDefinitionKey, SimpleAttributeDefinition attribute) {
+        List<SimpleAttributeDefinition> resourceAttributes = attributeDefinitions.get(resourceDefinitionKey);
+
+        if (resourceAttributes == null) {
+            resourceAttributes = new ArrayList<SimpleAttributeDefinition>();
+            attributeDefinitions.put(resourceDefinitionKey, resourceAttributes);
+        }
+
+        if (!resourceAttributes.contains(attribute)) {
+            resourceAttributes.add(attribute);
+        }
+    }
+
+    public static void addChildResourceDefinition(ModelElement resourceDefinitionKey, ResourceDefinition attribute) {
+        List<ResourceDefinition> childResources = childResourceDefinitions.get(resourceDefinitionKey);
+
+        if (childResources == null) {
+            childResources = new ArrayList<ResourceDefinition>();
+            childResourceDefinitions.put(resourceDefinitionKey, childResources);
+        }
+
+        if (!childResources.contains(attribute)) {
+            childResources.add(attribute);
+        }
+    }
+
+    /**
+     * @param modelElement
+     * @return
+     */
+    public static List<SimpleAttributeDefinition> getAttributeDefinition(ModelElement modelElement) {
+        List<SimpleAttributeDefinition> definitions = attributeDefinitions.get(modelElement);
+
+        if (definitions == null) {
+            return Collections.emptyList();
+        }
+
+        return definitions;
+    }
+
+    /**
+     * @param parentModelElement
+     * @return
+     */
+    public static List<ResourceDefinition> getChildResourceDefinitions(ModelElement parentModelElement) {
+        return childResourceDefinitions.get(parentModelElement);
     }
 
 }

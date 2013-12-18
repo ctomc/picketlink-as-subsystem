@@ -47,8 +47,6 @@ public class FederationService implements Service<FederationService> {
     private KeyProviderType keyProvider;
     private STSConfiguration samlConfig;
 
-    private IdentityProviderService identityProviderService;
-
     /* (non-Javadoc)
      * @see org.jboss.msc.value.Value#getValue()
      */
@@ -116,14 +114,6 @@ public class FederationService implements Service<FederationService> {
      */
     public static ServiceName createServiceName(String alias) {
         return ServiceName.JBOSS.append(SERVICE_NAME, alias);
-    }
-    
-    public void setIdentityProviderService(IdentityProviderService identityProviderService) {
-        this.identityProviderService = identityProviderService;
-    }
-
-    public IdentityProviderService getIdentityProviderService() {
-        return this.identityProviderService;
     }
     
 }

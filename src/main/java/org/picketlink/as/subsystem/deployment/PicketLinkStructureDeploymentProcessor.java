@@ -37,11 +37,14 @@ import org.picketlink.as.subsystem.federation.service.IdentityProviderService;
 import org.picketlink.as.subsystem.federation.service.PicketLinkFederationService;
 import org.picketlink.as.subsystem.federation.service.ServiceProviderService;
 
-import static org.picketlink.as.subsystem.deployment.PicketLinkAttachments.*;
-import static org.picketlink.as.subsystem.deployment.PicketLinkModuleIdentifiers.*;
+import static org.picketlink.as.subsystem.deployment.PicketLinkAttachments.CORE_ATTACHMENT_KEY;
+import static org.picketlink.as.subsystem.deployment.PicketLinkAttachments.FEDERATION_ATTACHMENT_KEY;
+import static org.picketlink.as.subsystem.deployment.PicketLinkAttachments.IDM_ATTACHMENT_KEY;
+import static org.picketlink.as.subsystem.deployment.PicketLinkModuleIdentifiers.ORG_PICKETLINK_CORE_MODULE;
+import static org.picketlink.as.subsystem.deployment.PicketLinkModuleIdentifiers.ORG_PICKETLINK_IDM_MODULE;
 
 /**
- * <p>{@link DeploymentUnitProcessor} that marks PicketLink deployments according with structure of the deployment.</p>
+ * <p>{@link DeploymentUnitProcessor} that marks PicketLink deployments according with the structure of the deployment.</p>
  *
  * @author <a href="mailto:sthorger@redhat.com">Stian Thorgersen</a>
  */
@@ -64,13 +67,12 @@ public class PicketLinkStructureDeploymentProcessor implements DeploymentUnitPro
 
         ServiceRegistry serviceRegistry = phaseContext.getServiceRegistry();
 
-        ServiceController<?> federationService = serviceRegistry.getService(IdentityProviderService
-                .createServiceName(deployment.getName()));
+        ServiceController<?> federationService = serviceRegistry.getService(IdentityProviderService.createServiceName(deployment.getName()));
 
         if (federationService == null) {
             federationService = serviceRegistry.getService(ServiceProviderService.createServiceName(deployment.getName()));
         }
-        
+
         if (federationService != null) {
             deployment.putAttachment(FEDERATION_ATTACHMENT_KEY, (PicketLinkFederationService<?>) federationService.getValue());
         }

@@ -22,26 +22,39 @@
 
 package org.picketlink.as.subsystem.idm.model;
 
-import java.util.List;
-
-import org.jboss.as.controller.AbstractAddStepHandler;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
+import org.jboss.as.controller.PathAddress;
+import org.jboss.as.controller.RestartParentResourceAddHandler;
 import org.jboss.as.controller.ServiceVerificationHandler;
 import org.jboss.dmr.ModelNode;
-import org.jboss.msc.service.ServiceController;
+import org.jboss.msc.service.ServiceName;
+import org.picketlink.as.subsystem.idm.service.PartitionManagerService;
+import org.picketlink.as.subsystem.model.ModelElement;
 
 /**
  * @author Pedro Silva
  * 
  */
-public class IDMConfigAddStepHandler extends AbstractAddStepHandler {
+public class IDMConfigAddStepHandler extends RestartParentResourceAddHandler {
 
     private final AttributeDefinition[] attributes;
 
-    IDMConfigAddStepHandler(final AttributeDefinition[] attributes) {
-        this.attributes = attributes;
+    IDMConfigAddStepHandler(final AttributeDefinition... attributes) {
+        super(ModelElement.IDENTITY_MANAGEMENT.getName());
+        this.attributes = attributes != null ? attributes : new AttributeDefinition[0];
+    }
+
+    @Override
+    protected void recreateParentService(OperationContext context, PathAddress parentAddress, ModelNode parentModel,
+                                         ServiceVerificationHandler verificationHandler) throws OperationFailedException {
+        IdentityManagementAddHandler.INSTANCE.createPartitionManagerService(context, parentModel, verificationHandler, null);
+    }
+
+    @Override
+    protected ServiceName getParentServiceName(PathAddress parentAddress) {
+        return PartitionManagerService.createServiceName(parentAddress.getLastElement().getValue());
     }
 
     @Override
@@ -51,11 +64,4 @@ public class IDMConfigAddStepHandler extends AbstractAddStepHandler {
         }
     }
 
-    @Override
-    protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model,
-            ServiceVerificationHandler verificationHandler, List<ServiceController<?>> newControllers)
-            throws OperationFailedException {
-        super.performRuntime(context, operation, model, verificationHandler, newControllers);
-        context.reloadRequired();
-    }
 }

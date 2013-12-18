@@ -33,13 +33,19 @@ import org.jboss.modules.ModuleIdentifier;
 import org.jboss.modules.ModuleLoader;
 import org.jboss.modules.filter.PathFilters;
 
-import static org.picketlink.as.subsystem.PicketLinkLogger.*;
-import static org.picketlink.as.subsystem.deployment.PicketLinkModuleIdentifiers.*;
-import static org.picketlink.as.subsystem.deployment.PicketLinkStructureDeploymentProcessor.*;
+import static org.picketlink.as.subsystem.PicketLinkLogger.ROOT_LOGGER;
+import static org.picketlink.as.subsystem.deployment.PicketLinkModuleIdentifiers.ORG_PICKETLINK_CORE_API_MODULE;
+import static org.picketlink.as.subsystem.deployment.PicketLinkModuleIdentifiers.ORG_PICKETLINK_CORE_MODULE;
+import static org.picketlink.as.subsystem.deployment.PicketLinkModuleIdentifiers.ORG_PICKETLINK_IDM_API_MODULE;
+import static org.picketlink.as.subsystem.deployment.PicketLinkModuleIdentifiers.ORG_PICKETLINK_IDM_MODULE;
+import static org.picketlink.as.subsystem.deployment.PicketLinkModuleIdentifiers.ORG_PICKETLINK_MODULE;
+import static org.picketlink.as.subsystem.deployment.PicketLinkStructureDeploymentProcessor.isCoreDeployment;
+import static org.picketlink.as.subsystem.deployment.PicketLinkStructureDeploymentProcessor.isFederationDeployment;
+import static org.picketlink.as.subsystem.deployment.PicketLinkStructureDeploymentProcessor.isIDMDeployment;
 
 /**
  * <p>
- * Specific {@link DeploymentUnitProcessor} to automatically configure the PicketLink module dependencies.
+ * {@link DeploymentUnitProcessor} to automatically configure PicketLink module dependencies for deployments..
  * </p>
  *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>

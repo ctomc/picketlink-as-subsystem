@@ -19,33 +19,38 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
 package org.picketlink.as.subsystem.federation.model.saml;
 
-import org.jboss.as.controller.AbstractRemoveStepHandler;
+
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
+import org.jboss.as.controller.PathAddress;
+import org.jboss.as.controller.RestartParentResourceRemoveHandler;
+import org.jboss.as.controller.ServiceVerificationHandler;
 import org.jboss.dmr.ModelNode;
+import org.jboss.msc.service.ServiceName;
+import org.picketlink.as.subsystem.federation.model.FederationAddHandler;
+import org.picketlink.as.subsystem.federation.service.FederationService;
+import org.picketlink.as.subsystem.model.ModelElement;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
-public class SAMLRemoveHandler extends AbstractRemoveStepHandler {
+public class SAMLRemoveHandler extends RestartParentResourceRemoveHandler {
 
-    public static final SAMLRemoveHandler INSTANCE = new SAMLRemoveHandler();
-
-    private SAMLRemoveHandler() {
+    protected SAMLRemoveHandler() {
+        super(ModelElement.FEDERATION.getName());
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.jboss.as.controller.AbstractRemoveStepHandler#performRuntime(org.jboss.as.controller.OperationContext,
-     * org.jboss.dmr.ModelNode, org.jboss.dmr.ModelNode)
-     */
     @Override
-    protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model)
-            throws OperationFailedException {
+    protected void recreateParentService(OperationContext context, PathAddress parentAddress, ModelNode parentModel,
+                                         ServiceVerificationHandler verificationHandler) throws OperationFailedException {
+        FederationAddHandler.INSTANCE.createFederationService(parentModel, context, verificationHandler, null);
+    }
+
+    @Override
+    protected ServiceName getParentServiceName(PathAddress parentAddress) {
+        return FederationService.createServiceName(parentAddress.getLastElement().getValue());
     }
 
 }

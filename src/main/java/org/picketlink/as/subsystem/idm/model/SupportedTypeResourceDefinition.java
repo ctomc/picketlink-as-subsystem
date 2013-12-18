@@ -36,7 +36,7 @@ public class SupportedTypeResourceDefinition extends AbstractResourceDefinition 
 
     public static final SimpleAttributeDefinition COMMON_CLASS = new SimpleAttributeDefinitionBuilder(
             ModelElement.COMMON_CLASS.getName(), ModelType.STRING, false)
-            .setAllowExpression(false).build();
+            .setAllowExpression(true).build();
 
     public static final SupportedTypeResourceDefinition INSTANCE = new SupportedTypeResourceDefinition(COMMON_CLASS);
     

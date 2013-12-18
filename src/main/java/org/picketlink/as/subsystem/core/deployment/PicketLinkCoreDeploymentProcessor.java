@@ -39,6 +39,7 @@ import javax.enterprise.inject.spi.Extension;
 import java.util.Iterator;
 
 import static org.jboss.as.web.deployment.WarMetaData.*;
+import static org.picketlink.as.subsystem.PicketLinkLogger.ROOT_LOGGER;
 import static org.picketlink.as.subsystem.deployment.PicketLinkModuleIdentifiers.*;
 import static org.picketlink.as.subsystem.deployment.PicketLinkStructureDeploymentProcessor.*;
 
@@ -87,6 +88,8 @@ public class PicketLinkCoreDeploymentProcessor extends AbstractCDIDeploymentUnit
         } catch (ModuleLoadException e) {
             throw new DeploymentUnitProcessingException("Failed to configure CDI extensions for deployment [" + deployment.getName() + "].", e);
         }
+
+        ROOT_LOGGER.configuringDeployment("PicketLink Core CDI Extension", deployment.getName());
     }
 
     private String getPartitionManagerJNDIUrl(final DeploymentUnit deployment) {

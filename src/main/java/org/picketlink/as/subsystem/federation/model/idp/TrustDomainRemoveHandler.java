@@ -22,19 +22,18 @@
 package org.picketlink.as.subsystem.federation.model.idp;
 
 
-import java.util.ArrayList;
-
 import org.jboss.as.controller.AbstractRemoveStepHandler;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
+import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.dmr.ModelNode;
-import org.picketlink.as.subsystem.federation.service.AbstractEntityProviderService;
+import org.jboss.msc.service.ServiceController;
 import org.picketlink.as.subsystem.federation.service.IdentityProviderService;
-import org.picketlink.as.subsystem.model.ModelElement;
 import org.picketlink.config.federation.KeyProviderType;
 import org.picketlink.config.federation.KeyValueType;
-import org.picketlink.identity.federation.core.config.IDPConfiguration;
+
+import java.util.ArrayList;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -49,17 +48,19 @@ public class TrustDomainRemoveHandler extends AbstractRemoveStepHandler {
     @Override
     protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model)
             throws OperationFailedException {
-        String alias = operation.get(ModelDescriptionConstants.ADDRESS).asPropertyList().get(2).getValue().asString();
-        String domain = operation.get(ModelElement.IDENTITY_PROVIDER_TRUST_DOMAIN_NAME.getName()).asString();
+        PathAddress pathAddress = PathAddress.pathAddress(operation.get(ModelDescriptionConstants.ADDRESS));
+        String alias = pathAddress.subAddress(0, pathAddress.size() - 1).getLastElement().getValue();
+        String domain = pathAddress.getLastElement().getValue();
 
-        AbstractEntityProviderService<IdentityProviderService, IDPConfiguration> service = IdentityProviderService.getService(context.getServiceRegistry(true), alias);
-        
+        ServiceController<IdentityProviderService> serviceController =
+                (ServiceController<IdentityProviderService>) context.getServiceRegistry(true).getService(IdentityProviderService.createServiceName(alias));
+        IdentityProviderService service = serviceController.getValue();
         KeyProviderType keyProvider = service.getConfiguration().getKeyProvider();
         
         if (keyProvider != null) {
-            for (KeyValueType validatinAlias : new ArrayList<KeyValueType>(keyProvider.getValidatingAlias())) {
-                if (validatinAlias.equals(domain)) {
-                    keyProvider.remove(validatinAlias);
+            for (KeyValueType validatingAlias : new ArrayList<KeyValueType>(keyProvider.getValidatingAlias())) {
+                if (validatingAlias.getKey().equals(domain)) {
+                    keyProvider.remove(validatingAlias);
                 }
             }
         }

@@ -36,7 +36,7 @@ public interface PicketLinkFederationService<T> extends Service<T> {
 
     /**
      * <p>Configures a {@link DeploymentUnit} as a PicketLink deployment. For example: Identity Providers and Service Providers.</p>
-     * 
+     *
      * @param deploymentUnit
      */
     void configure(DeploymentUnit deploymentUnit);
@@ -47,6 +47,4 @@ public interface PicketLinkFederationService<T> extends Service<T> {
      * @return
      */
     PicketLinkSubsystemMetrics getMetrics();
-    
-    
 }

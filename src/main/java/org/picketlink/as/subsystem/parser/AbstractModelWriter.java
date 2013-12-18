@@ -22,19 +22,18 @@
 
 package org.picketlink.as.subsystem.parser;
 
-import java.util.List;
-import java.util.Map;
-
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
-
 import org.jboss.as.controller.ResourceDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.dmr.ModelNode;
 import org.picketlink.as.subsystem.PicketLinkMessages;
+import org.picketlink.as.subsystem.model.AbstractResourceDefinition;
 import org.picketlink.as.subsystem.model.ModelElement;
-import org.picketlink.as.subsystem.model.SubsystemDescriber;
 import org.picketlink.as.subsystem.model.XMLElement;
+
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -52,12 +51,12 @@ public abstract class AbstractModelWriter implements ModelWriter {
     }
     
     /**
-     * @param trustDomain
+     * @param modelElement
      * @param trust
      * @param writers
      */
-    public AbstractModelWriter(ModelElement trustDomain, XMLElement trust, Map<String, ModelWriter> writers) {
-        this(trustDomain, writers);
+    public AbstractModelWriter(ModelElement modelElement, XMLElement trust, Map<String, ModelWriter> writers) {
+        this(modelElement, writers);
         this.parentElement = trust;
     }
 
@@ -72,11 +71,11 @@ public abstract class AbstractModelWriter implements ModelWriter {
     }
     
     protected List<SimpleAttributeDefinition> getAttributeDefinitions() {
-        return SubsystemDescriber.getAttributeDefinition(this.modelElement);
+        return AbstractResourceDefinition.getAttributeDefinition(this.modelElement);
     } 
 
     protected List<ResourceDefinition> getChildResourceDefinitions() {
-        return SubsystemDescriber.getChildResourceDefinitions(this.modelElement);
+        return AbstractResourceDefinition.getChildResourceDefinitions(this.modelElement);
     } 
 
     /**

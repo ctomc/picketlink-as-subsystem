@@ -35,23 +35,18 @@ import org.picketlink.as.subsystem.model.ModelElement;
  */
 public class IdentityManagementResourceDefinition extends AbstractResourceDefinition {
 
-    public static final IdentityManagementResourceDefinition INSTANCE = new IdentityManagementResourceDefinition();
-
     public static final SimpleAttributeDefinition ALIAS = new SimpleAttributeDefinitionBuilder(
             ModelElement.COMMON_ALIAS.getName(), ModelType.STRING, false)
-            .setAllowExpression(false).build();
+            .setAllowExpression(true).build();
 
     public static final SimpleAttributeDefinition IDENTITY_MANAGEMENT_JNDI_URL = new SimpleAttributeDefinitionBuilder(
             ModelElement.IDENTITY_MANAGEMENT_JNDI_NAME.getName(), ModelType.STRING, true)
-            .setAllowExpression(false).build();
+            .setAllowExpression(true).build();
 
-    static {
-        INSTANCE.addAttribute(IDENTITY_MANAGEMENT_JNDI_URL);
-        INSTANCE.addAttribute(ALIAS);
-    }
-    
+    public static final IdentityManagementResourceDefinition INSTANCE = new IdentityManagementResourceDefinition();
+
     private IdentityManagementResourceDefinition() {
-        super(ModelElement.IDENTITY_MANAGEMENT, IdentityManagementAddHandler.INSTANCE, IdentityManagementRemoveHandler.INSTANCE);
+        super(ModelElement.IDENTITY_MANAGEMENT, IdentityManagementAddHandler.INSTANCE, IdentityManagementRemoveHandler.INSTANCE, IDENTITY_MANAGEMENT_JNDI_URL, ALIAS);
     }
     
     @Override

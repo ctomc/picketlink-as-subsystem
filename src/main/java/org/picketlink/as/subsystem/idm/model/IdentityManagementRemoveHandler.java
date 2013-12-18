@@ -49,9 +49,7 @@ public class IdentityManagementRemoveHandler extends AbstractRemoveStepHandler {
     protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model)
             throws OperationFailedException {
         String alias = operation.get(ModelElement.COMMON_ALIAS.getName()).asString();
-
         context.removeService(PartitionManagerService.createServiceName(alias));
-        context.reloadRequired();
         context.completeStep(OperationContext.ResultHandler.NOOP_RESULT_HANDLER);
     }
 

@@ -50,7 +50,6 @@ public class ServiceProviderRemoveHandler extends AbstractRemoveStepHandler {
     protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model)
             throws OperationFailedException {
         String spAlias = PathAddress.pathAddress(operation.get(ModelDescriptionConstants.ADDRESS)).getLastElement().getValue();
-        
         context.removeService(ServiceProviderService.createServiceName(spAlias));
     }
 

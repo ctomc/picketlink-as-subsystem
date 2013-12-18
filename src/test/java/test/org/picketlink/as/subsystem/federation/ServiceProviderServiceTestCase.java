@@ -29,6 +29,7 @@ import junit.framework.Assert;
 
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.Property;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.picketlink.as.subsystem.federation.service.ServiceProviderService;
 import org.picketlink.as.subsystem.model.ModelElement;
@@ -38,6 +39,7 @@ import org.picketlink.identity.federation.core.config.SPConfiguration;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
+@Ignore
 public class ServiceProviderServiceTestCase extends AbstractFederationSubsystemTestCase {
 
     /**

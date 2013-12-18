@@ -50,7 +50,7 @@ public class PicketLinkSubsystemWriter_1_0 implements XMLStreamConstants, XMLEle
     static {
         writers = new HashMap<String, ModelWriter>();
         
-        writers.put(ModelElement.IDENTITY_MANAGEMENT.getName(), new GenericModelElementWriter(ModelElement.IDENTITY_MANAGEMENT, writers));
+        writers.put(ModelElement.IDENTITY_MANAGEMENT.getName(), new GenericModelElementWriter(ModelElement.IDENTITY_MANAGEMENT, ModelElement.COMMON_NAME.getName(), writers));
         writers.put(ModelElement.IDENTITY_CONFIGURATION.getName(), new GenericModelElementWriter(ModelElement.IDENTITY_CONFIGURATION, writers));
         writers.put(ModelElement.JPA_STORE.getName(), new GenericModelElementWriter(ModelElement.JPA_STORE, writers));
         writers.put(ModelElement.FILE_STORE.getName(), new GenericModelElementWriter(ModelElement.FILE_STORE, writers));
@@ -65,9 +65,9 @@ public class PicketLinkSubsystemWriter_1_0 implements XMLStreamConstants, XMLEle
         writers.put(ModelElement.KEY_STORE.getName(), new GenericModelElementWriter(ModelElement.KEY_STORE, writers));
         writers.put(ModelElement.IDENTITY_PROVIDER_SAML_METADATA.getName(), new GenericModelElementWriter(ModelElement.IDENTITY_PROVIDER_SAML_METADATA, writers));
         writers.put(ModelElement.IDENTITY_PROVIDER_SAML_METADATA_ORGANIZATION.getName(), new GenericModelElementWriter(ModelElement.IDENTITY_PROVIDER_SAML_METADATA_ORGANIZATION, writers));
-        writers.put(ModelElement.IDENTITY_PROVIDER_TRUST_DOMAIN.getName(), new GenericModelElementWriter(ModelElement.IDENTITY_PROVIDER_TRUST_DOMAIN, XMLElement.TRUST, writers));
+        writers.put(ModelElement.IDENTITY_PROVIDER_TRUST_DOMAIN.getName(), new GenericModelElementWriter(ModelElement.IDENTITY_PROVIDER_TRUST_DOMAIN, XMLElement.TRUST, ModelElement.COMMON_NAME.getName(), writers));
         writers.put(ModelElement.COMMON_HANDLER.getName(), new GenericModelElementWriter(ModelElement.COMMON_HANDLER, XMLElement.HANDLERS, writers));
-        writers.put(ModelElement.COMMON_HANDLER_PARAMETER.getName(), new GenericModelElementWriter(ModelElement.COMMON_HANDLER_PARAMETER, writers));
+        writers.put(ModelElement.COMMON_HANDLER_PARAMETER.getName(), new GenericModelElementWriter(ModelElement.COMMON_HANDLER_PARAMETER, ModelElement.COMMON_NAME.getName(), writers));
         writers.put(ModelElement.SERVICE_PROVIDER.getName(), new GenericModelElementWriter(ModelElement.SERVICE_PROVIDER, XMLElement.SERVICE_PROVIDERS, writers));
         writers.put(ModelElement.SAML.getName(), new GenericModelElementWriter(ModelElement.SAML, writers));
     }

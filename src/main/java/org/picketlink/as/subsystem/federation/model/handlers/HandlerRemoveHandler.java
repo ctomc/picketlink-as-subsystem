@@ -22,63 +22,34 @@
 package org.picketlink.as.subsystem.federation.model.handlers;
 
 
-import java.util.ArrayList;
-
-import org.jboss.as.controller.AbstractRemoveStepHandler;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
-import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
+import org.jboss.as.controller.PathAddress;
+import org.jboss.as.controller.RestartParentResourceRemoveHandler;
+import org.jboss.as.controller.ServiceVerificationHandler;
 import org.jboss.dmr.ModelNode;
-import org.picketlink.as.subsystem.federation.service.AbstractEntityProviderService;
-import org.picketlink.as.subsystem.federation.service.IdentityProviderService;
-import org.picketlink.as.subsystem.federation.service.ServiceProviderService;
+import org.jboss.msc.service.ServiceName;
+import org.picketlink.as.subsystem.federation.model.FederationAddHandler;
+import org.picketlink.as.subsystem.federation.service.FederationService;
 import org.picketlink.as.subsystem.model.ModelElement;
-import org.picketlink.config.federation.handler.Handler;
-import org.picketlink.config.federation.handler.Handlers;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
-public class HandlerRemoveHandler extends AbstractRemoveStepHandler {
+public class HandlerRemoveHandler extends RestartParentResourceRemoveHandler {
 
-    public static final HandlerRemoveHandler INSTANCE = new HandlerRemoveHandler();
-
-    private HandlerRemoveHandler() {
+    public HandlerRemoveHandler() {
+        super(ModelElement.IDENTITY_PROVIDER.getName());
     }
-    
-    @SuppressWarnings("rawtypes")
+
     @Override
-    protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model)
-            throws OperationFailedException {
-        String providerAlias = operation.get(ModelDescriptionConstants.ADDRESS).asPropertyList().get(2).getValue().asString();
-        String className = operation.get(ModelElement.COMMON_CLASS.getName()).asString();
-        
-        AbstractEntityProviderService providerService = getParentProviderService(context, providerAlias);
-        
-        Handlers handlerChain = providerService.getPicketLinkType().getHandlers();
-        
-        for (Handler handler : new ArrayList<Handler>(handlerChain.getHandler())) {
-            if (handler.getClazz().equals(className)) {
-                handlerChain.remove(handler);
-            }
-        }
+    protected void recreateParentService(OperationContext context, PathAddress parentAddress, ModelNode parentModel,
+                                         ServiceVerificationHandler verificationHandler) throws OperationFailedException {
+        FederationAddHandler.INSTANCE.createFederationService(parentModel, context, verificationHandler, null);
     }
-    
-    /**
-     * <p>Returns the {@link AbstractEntityProviderService} instance to be used during the handler configuration.</p>
-     * 
-     * @param context
-     * @param providerAlias
-     * @return
-     */
-    @SuppressWarnings("rawtypes")
-    private AbstractEntityProviderService getParentProviderService(OperationContext context, String providerAlias) {
-        AbstractEntityProviderService providerService = IdentityProviderService.getService(context.getServiceRegistry(true), providerAlias);
-        
-        if (providerService == null) {
-            providerService = ServiceProviderService.getService(context.getServiceRegistry(true), providerAlias);
-        }
-        return providerService;
+
+    @Override
+    protected ServiceName getParentServiceName(PathAddress parentAddress) {
+        return FederationService.createServiceName(parentAddress.getLastElement().getValue());
     }
-    
 }

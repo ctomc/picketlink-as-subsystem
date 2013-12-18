@@ -22,16 +22,15 @@
 
 package org.picketlink.as.subsystem.parser;
 
-import java.util.List;
-import java.util.Map;
-
-import javax.xml.stream.XMLStreamException;
-
 import org.jboss.as.controller.ResourceDefinition;
 import org.jboss.dmr.ModelNode;
 import org.jboss.staxmapper.XMLExtendedStreamWriter;
 import org.picketlink.as.subsystem.model.ModelElement;
 import org.picketlink.as.subsystem.model.XMLElement;
+
+import javax.xml.stream.XMLStreamException;
+import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -42,6 +41,8 @@ import org.picketlink.as.subsystem.model.XMLElement;
  * @since Mar 9, 2012
  */
 public class GenericModelElementWriter extends AbstractModelWriter {
+
+    private String nameAttribute;
 
     /**
      * @param register
@@ -59,20 +60,38 @@ public class GenericModelElementWriter extends AbstractModelWriter {
         super(trustDomain, trust, writers);
     }
 
+    /**
+     * @param trustDomain
+     * @param trust
+     * @param writers
+     */
+    public GenericModelElementWriter(ModelElement trustDomain, XMLElement trust, String nameAttribute, Map<String, ModelWriter> writers) {
+        super(trustDomain, trust, writers);
+        this.nameAttribute = nameAttribute;
+    }
+
+    public GenericModelElementWriter(ModelElement modelElement, String nameAttribute, Map<String, ModelWriter> register) {
+        super(modelElement, register);
+        this.nameAttribute = nameAttribute;
+    }
+
     /* (non-Javadoc)
      * @see org.picketlink.as.subsystem.parser.ModelWriter#write(org.jboss.staxmapper.XMLExtendedStreamWriter, org.jboss.dmr.Property)
      */
     @Override
     public void write(XMLExtendedStreamWriter writer, ModelNode property) throws XMLStreamException {
         if (property.asProperty().getName().equals(this.getModelElement().getName()) || property.asProperty().getValue().hasDefined(this.getModelElement().getName())) {
-            
             if (this.getParentElement() != null) {
                 writer.writeStartElement(this.getParentElement().getName());                
             }
 
             for (ModelNode modelNode : property.asProperty().getValue().asList()) {
                 writer.writeStartElement(this.getModelElement().getName());
-                
+
+                if (this.nameAttribute != null) {
+                    writer.writeAttribute(this.nameAttribute, modelNode.keys().iterator().next());
+                }
+
                 writeAttributes(writer, modelNode.asProperty().getValue());
                 
                 for (ModelNode propertyIdentity: modelNode.asProperty().getValue().asList()) {

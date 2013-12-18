@@ -55,15 +55,32 @@ import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import java.util.List;
 
-import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.*;
-import static org.jboss.as.controller.parsing.ParseUtils.*;
-import static org.picketlink.as.subsystem.model.ModelElement.*;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.ADD;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
+import static org.jboss.as.controller.parsing.ParseUtils.requireNoAttributes;
+import static org.jboss.as.controller.parsing.ParseUtils.unexpectedElement;
+import static org.picketlink.as.subsystem.model.ModelElement.COMMON_HANDLER;
+import static org.picketlink.as.subsystem.model.ModelElement.COMMON_HANDLER_PARAMETER;
+import static org.picketlink.as.subsystem.model.ModelElement.FEDERATION;
+import static org.picketlink.as.subsystem.model.ModelElement.FILE_STORE;
+import static org.picketlink.as.subsystem.model.ModelElement.IDENTITY_CONFIGURATION;
+import static org.picketlink.as.subsystem.model.ModelElement.IDENTITY_MANAGEMENT;
+import static org.picketlink.as.subsystem.model.ModelElement.IDENTITY_PROVIDER;
+import static org.picketlink.as.subsystem.model.ModelElement.IDENTITY_PROVIDER_TRUST_DOMAIN;
+import static org.picketlink.as.subsystem.model.ModelElement.IDENTITY_STORE_CREDENTIAL_HANDLER;
+import static org.picketlink.as.subsystem.model.ModelElement.JPA_STORE;
+import static org.picketlink.as.subsystem.model.ModelElement.LDAP_STORE;
+import static org.picketlink.as.subsystem.model.ModelElement.LDAP_STORE_ATTRIBUTE;
+import static org.picketlink.as.subsystem.model.ModelElement.LDAP_STORE_MAPPING;
+import static org.picketlink.as.subsystem.model.ModelElement.SERVICE_PROVIDER;
+import static org.picketlink.as.subsystem.model.ModelElement.SUPPORTED_TYPE;
+import static org.picketlink.as.subsystem.model.ModelElement.SUPPORTED_TYPES;
 
 /**
  * <p>
  * XML Reader for the subsystem schema, version 1.0.
  * </p>
- * 
+ *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
 public class PicketLinkSubsystemReader_1_0 implements XMLStreamConstants, XMLElementReader<List<ModelNode>> {
@@ -95,7 +112,7 @@ public class PicketLinkSubsystemReader_1_0 implements XMLStreamConstants, XMLEle
 
     /**
      * Parses the PicketLink subsystem configuration according to the XSD version 1.0.
-     * 
+     *
      * @param reader
      * @param list
      * @throws XMLStreamException
@@ -109,7 +126,7 @@ public class PicketLinkSubsystemReader_1_0 implements XMLStreamConstants, XMLEle
         ModelNode federationNode = null;
         ModelNode lastProviderNode = null;
         ModelNode lastHandlerNode = null;
-        
+
         ModelNode identityManagementNode = null;
         ModelNode identityConfigurationNode = null;
         ModelNode lastIdentityStoreNode = null;
@@ -203,7 +220,7 @@ public class PicketLinkSubsystemReader_1_0 implements XMLStreamConstants, XMLEle
      * @param reader
      * @param list
      * @param federationNode
-     * @return 
+     * @return
      * @throws XMLStreamException
      */
     private ModelNode parseServiceProviderConfig(XMLExtendedStreamReader reader, List<ModelNode> list, ModelNode federationNode)
@@ -225,19 +242,19 @@ public class PicketLinkSubsystemReader_1_0 implements XMLStreamConstants, XMLEle
      */
     private void parseTrustDomainConfig(XMLExtendedStreamReader reader, List<ModelNode> list, ModelNode identityProviderNode)
             throws XMLStreamException {
-        parseConfig(reader, IDENTITY_PROVIDER_TRUST_DOMAIN, TrustDomainResourceDefinition.NAME.getName(), list, identityProviderNode,
+        parseConfig(reader, IDENTITY_PROVIDER_TRUST_DOMAIN, ModelElement.COMMON_NAME.getName(), list, identityProviderNode,
                 TrustDomainResourceDefinition.INSTANCE.getAttributes());
     }
 
     private ModelNode parseHandlerConfig(XMLExtendedStreamReader reader, List<ModelNode> list, ModelNode identityProviderNode)
             throws XMLStreamException {
-        return parseConfig(reader, ModelElement.COMMON_HANDLER, HandlerResourceDefinition.CLASS.getName(), list, identityProviderNode,
+        return parseConfig(reader, COMMON_HANDLER, HandlerResourceDefinition.CLASS.getName(), list, identityProviderNode,
                 HandlerResourceDefinition.INSTANCE.getAttributes());
     }
 
     private ModelNode parseHandlerParameterConfig(XMLExtendedStreamReader reader, List<ModelNode> list, ModelNode identityProviderNode)
             throws XMLStreamException {
-        return parseConfig(reader, ModelElement.COMMON_HANDLER_PARAMETER, HandlerParameterResourceDefinition.NAME.getName(), list, identityProviderNode,
+        return parseConfig(reader, COMMON_HANDLER_PARAMETER, ModelElement.COMMON_NAME.getName(), list, identityProviderNode,
                 HandlerParameterResourceDefinition.INSTANCE.getAttributes());
     }
 
@@ -269,60 +286,60 @@ public class PicketLinkSubsystemReader_1_0 implements XMLStreamConstants, XMLEle
 
     private ModelNode parseIdentityManagementConfig(XMLExtendedStreamReader reader, List<ModelNode> list, ModelNode parentNode)
             throws XMLStreamException {
-        return parseConfig(reader, ModelElement.IDENTITY_MANAGEMENT, IdentityManagementResourceDefinition.ALIAS.getName(), list, parentNode, IdentityManagementResourceDefinition.INSTANCE.getAttributes());
+        return parseConfig(reader, IDENTITY_MANAGEMENT, IdentityManagementResourceDefinition.ALIAS.getName(), list, parentNode, IdentityManagementResourceDefinition.INSTANCE.getAttributes());
     }
 
     private ModelNode parseIdentityConfigurationConfig(XMLExtendedStreamReader reader, List<ModelNode> list, ModelNode parentNode)
             throws XMLStreamException {
-        return parseConfig(reader, ModelElement.IDENTITY_CONFIGURATION, IdentityConfigurationResourceDefinition.NAME.getName(), list, parentNode, IdentityConfigurationResourceDefinition.INSTANCE.getAttributes());
+        return parseConfig(reader, IDENTITY_CONFIGURATION, ModelElement.COMMON_NAME.getName(), list, parentNode, IdentityConfigurationResourceDefinition.INSTANCE.getAttributes());
     }
 
     private ModelNode parseJPAStoreConfig(XMLExtendedStreamReader reader, List<ModelNode> list, ModelNode identityManagementNode)
             throws XMLStreamException {
-        return parseConfig(reader, ModelElement.JPA_STORE, null, list, identityManagementNode, JPAStoreResourceDefinition.INSTANCE.getAttributes());
+        return parseConfig(reader, JPA_STORE, null, list, identityManagementNode, JPAStoreResourceDefinition.INSTANCE.getAttributes());
     }
 
     private ModelNode parseFileStoreConfig(XMLExtendedStreamReader reader, List<ModelNode> list, ModelNode identityManagementNode)
             throws XMLStreamException {
-        return parseConfig(reader, ModelElement.FILE_STORE, null, list, identityManagementNode, FileStoreResourceDefinition.INSTANCE.getAttributes());
+        return parseConfig(reader, FILE_STORE, null, list, identityManagementNode, FileStoreResourceDefinition.INSTANCE.getAttributes());
     }
 
     private ModelNode parseLDAPStoreConfig(XMLExtendedStreamReader reader, List<ModelNode> list, ModelNode identityManagementNode)
             throws XMLStreamException {
-        return parseConfig(reader, ModelElement.LDAP_STORE, null, list, identityManagementNode, LDAPStoreResourceDefinition.INSTANCE.getAttributes());
+        return parseConfig(reader, LDAP_STORE, null, list, identityManagementNode, LDAPStoreResourceDefinition.INSTANCE.getAttributes());
     }
 
     private ModelNode parseLDAPMappingConfig(XMLExtendedStreamReader reader, List<ModelNode> list, ModelNode identityProviderNode)
             throws XMLStreamException {
-        return parseConfig(reader, ModelElement.LDAP_STORE_MAPPING, LDAPStoreMappingResourceDefinition.CLASS.getName(), list, identityProviderNode,
+        return parseConfig(reader, LDAP_STORE_MAPPING, LDAPStoreMappingResourceDefinition.CLASS.getName(), list, identityProviderNode,
                 LDAPStoreMappingResourceDefinition.INSTANCE.getAttributes());
     }
 
     private ModelNode parseCredentialHandlerConfig(XMLExtendedStreamReader reader, List<ModelNode> list, ModelNode identityProviderNode)
             throws XMLStreamException {
-        return parseConfig(reader, ModelElement.IDENTITY_STORE_CREDENTIAL_HANDLER, CredentialHandlerResourceDefinition.CLASS.getName(), list, identityProviderNode,
+        return parseConfig(reader, IDENTITY_STORE_CREDENTIAL_HANDLER, CredentialHandlerResourceDefinition.CLASS.getName(), list, identityProviderNode,
                 CredentialHandlerResourceDefinition.INSTANCE.getAttributes());
     }
 
     private ModelNode parseLDAPAttributeConfig(XMLExtendedStreamReader reader, List<ModelNode> list, ModelNode identityProviderNode)
             throws XMLStreamException {
-        return parseConfig(reader, ModelElement.LDAP_STORE_ATTRIBUTE, LDAPStoreAttributeResourceDefinition.NAME.getName(), list, identityProviderNode,
+        return parseConfig(reader, LDAP_STORE_ATTRIBUTE, LDAPStoreAttributeResourceDefinition.NAME.getName(), list, identityProviderNode,
                 LDAPStoreAttributeResourceDefinition.INSTANCE.getAttributes());
     }
 
     private ModelNode parseSupportedTypesConfig(XMLExtendedStreamReader reader, List<ModelNode> list, ModelNode identityStoreNode)
             throws XMLStreamException {
-        return parseConfig(reader, ModelElement.SUPPORTED_TYPES, null, list, identityStoreNode, SupportedTypesResourceDefinition.INSTANCE.getAttributes());
+        return parseConfig(reader, SUPPORTED_TYPES, null, list, identityStoreNode, SupportedTypesResourceDefinition.INSTANCE.getAttributes());
     }
 
     private void parseSupportedTypeConfig(XMLExtendedStreamReader reader, List<ModelNode> list, ModelNode identityStoreNode)
             throws XMLStreamException {
-        parseConfig(reader, ModelElement.SUPPORTED_TYPE, SupportedTypeResourceDefinition.COMMON_CLASS.getName(), list, identityStoreNode, SupportedTypeResourceDefinition.INSTANCE.getAttributes());
+        parseConfig(reader, SUPPORTED_TYPE, SupportedTypeResourceDefinition.COMMON_CLASS.getName(), list, identityStoreNode, SupportedTypeResourceDefinition.INSTANCE.getAttributes());
     }
 
     /**
      * Creates the root subsystem's root address.
-     * 
+     *
      * @return
      */
     private ModelNode createSubsystemRoot() {
@@ -332,21 +349,21 @@ public class PicketLinkSubsystemReader_1_0 implements XMLStreamConstants, XMLEle
 
         subsystemAddress.protect();
 
-        return Util.getEmptyOperation(ModelDescriptionConstants.ADD, subsystemAddress);
+        return Util.getEmptyOperation(ADD, subsystemAddress);
     }
 
     /**
      * Reads a element from the stream considering the parameters.
-     * 
+     *
      * @param reader XMLExtendedStreamReader instance from which the elements are read.
      * @param xmlElement Name of the Model Element to be parsed.
      * @param key Name of the attribute to be used to as the key for the model.
      * @param list List of operations.
      * @param lastNode Parent ModelNode instance.
      * @param attributes AttributeDefinition instances to be used to extract the attributes and populate the resulting model.
-     * 
+     *
      * @return A ModelNode instance populated.
-     * 
+     *
      * @throws XMLStreamException
      */
     private ModelNode parseConfig(XMLExtendedStreamReader reader, ModelElement xmlElement, String key, List<ModelNode> list,
@@ -355,7 +372,7 @@ public class PicketLinkSubsystemReader_1_0 implements XMLStreamConstants, XMLEle
             return null;
         }
 
-        ModelNode modelNode = Util.getEmptyOperation(ModelDescriptionConstants.ADD, null);
+        ModelNode modelNode = Util.getEmptyOperation(ADD, null);
 
         for (SimpleAttributeDefinition simpleAttributeDefinition : attributes) {
             simpleAttributeDefinition.parseAndSetParameter(
@@ -363,8 +380,13 @@ public class PicketLinkSubsystemReader_1_0 implements XMLStreamConstants, XMLEle
         }
 
         if (key != null) {
-            modelNode.get(ModelDescriptionConstants.OP_ADDR).set(
-                    lastNode.clone().get(OP_ADDR).add(xmlElement.getName(), modelNode.get(key)));
+            if (!modelNode.hasDefined(key)) {
+                modelNode.get(ModelDescriptionConstants.OP_ADDR).set(
+                        lastNode.clone().get(OP_ADDR).add(xmlElement.getName(), reader.getAttributeValue("", key)));
+            } else {
+                modelNode.get(ModelDescriptionConstants.OP_ADDR).set(
+                        lastNode.clone().get(OP_ADDR).add(xmlElement.getName(), modelNode.get(key)));
+            }
         } else {
             modelNode.get(ModelDescriptionConstants.OP_ADDR).set(
                     lastNode.clone().get(OP_ADDR).add(xmlElement.getName(), xmlElement.getName()));

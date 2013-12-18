@@ -22,10 +22,12 @@
 
 package org.picketlink.as.subsystem.idm.model;
 
+import org.jboss.as.controller.AbstractAddStepHandler;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.ServiceVerificationHandler;
+import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.registry.Resource.ResourceEntry;
 import org.jboss.as.naming.ValueManagedReferenceFactory;
 import org.jboss.as.naming.deployment.ContextNames;
@@ -37,7 +39,6 @@ import org.jboss.msc.service.ServiceController.Mode;
 import org.jboss.msc.value.InjectedValue;
 import org.picketlink.as.subsystem.idm.config.JPAStoreSubsystemConfigurationBuilder;
 import org.picketlink.as.subsystem.idm.service.PartitionManagerService;
-import org.picketlink.as.subsystem.model.AbstractResourceAddStepHandler;
 import org.picketlink.as.subsystem.model.ModelElement;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
@@ -49,26 +50,36 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import static org.picketlink.as.subsystem.idm.model.IdentityManagementConfiguration.*;
+import static org.picketlink.as.subsystem.idm.model.IdentityManagementConfiguration.configureStore;
+import static org.picketlink.as.subsystem.idm.model.IdentityManagementConfiguration.toJndiName;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
-public class IdentityManagementAddHandler extends AbstractResourceAddStepHandler {
+public class IdentityManagementAddHandler extends AbstractAddStepHandler {
 
     public static final IdentityManagementAddHandler INSTANCE = new IdentityManagementAddHandler();
-
-    private IdentityManagementAddHandler() {
-        super(ModelElement.IDENTITY_MANAGEMENT);
-    }
 
     @Override
     protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model,
                                   final ServiceVerificationHandler verificationHandler, final List<ServiceController<?>> newControllers)
             throws OperationFailedException {
-        final String alias = operation.get(ModelElement.COMMON_ALIAS.getName()).asString();
+        createPartitionManagerService(context, model, verificationHandler, newControllers);
+    }
 
-        ModelNode jndiNameNode = operation.get(ModelElement.IDENTITY_MANAGEMENT_JNDI_NAME.getName());
+    @Override
+    protected void populateModel(ModelNode operation, ModelNode model) throws OperationFailedException {
+        for (SimpleAttributeDefinition attribute: IdentityManagementResourceDefinition.INSTANCE.getAttributes()) {
+            attribute.validateAndSet(operation, model);
+        }
+    }
+
+    public void createPartitionManagerService(final OperationContext context, final ModelNode model,
+                                              final ServiceVerificationHandler verificationHandler,
+                                              final List<ServiceController<?>> newControllers) throws OperationFailedException {
+        final String alias = IdentityManagementResourceDefinition.ALIAS.resolveModelAttribute(context, model).asString();
+
+        ModelNode jndiNameNode = IdentityManagementResourceDefinition.IDENTITY_MANAGEMENT_JNDI_URL.resolveModelAttribute(context, model);
 
         final String jndiName;
 
@@ -85,7 +96,7 @@ public class IdentityManagementAddHandler extends AbstractResourceAddStepHandler
         ServiceBuilder<PartitionManager> serviceBuilder = context.getServiceTarget().addService(
                 PartitionManagerService.createServiceName(alias), partitionManagerService);
 
-        configureDependencies(partitionManagerService, serviceBuilder);
+        configurePartitionManagerDependencies(partitionManagerService, serviceBuilder);
 
         Iterator<ResourceEntry> identityConfigurationResourceIterator = context.readResource(PathAddress.EMPTY_ADDRESS).getChildren(ModelElement.IDENTITY_CONFIGURATION.getName()).iterator();
 
@@ -98,7 +109,7 @@ public class IdentityManagementAddHandler extends AbstractResourceAddStepHandler
 
             for (String storeType : identityStoreTypes) {
                 for (ResourceEntry identityStoreResource : identityConfigurationResource.getChildren(storeType)) {
-                    IdentityStoreConfigurationBuilder storeConfig = configureStore(storeType, identityStoreResource, namedIdentityConfigurationBuilder, partitionManagerService);
+                    IdentityStoreConfigurationBuilder storeConfig = configureStore(context, storeType, identityStoreResource, namedIdentityConfigurationBuilder, partitionManagerService);
 
                     if (isJPAIdentityStoreConfiguration(storeConfig)) {
                         configureJPAStoreDependencies(serviceBuilder, identityStoreResource);
@@ -110,14 +121,16 @@ public class IdentityManagementAddHandler extends AbstractResourceAddStepHandler
         ServiceController<PartitionManager> controller = serviceBuilder.addListener(verificationHandler)
                 .setInitialMode(Mode.PASSIVE).install();
 
-        newControllers.add(controller);
+        if (newControllers != null) {
+            newControllers.add(controller);
+        }
     }
 
     private boolean isJPAIdentityStoreConfiguration(final IdentityStoreConfigurationBuilder storeConfig) {
         return JPAStoreSubsystemConfigurationBuilder.class.isInstance(storeConfig);
     }
 
-    private void configureDependencies(final PartitionManagerService partitionManagerService, final ServiceBuilder<PartitionManager> serviceBuilder) {
+    private void configurePartitionManagerDependencies(final PartitionManagerService partitionManagerService, final ServiceBuilder<PartitionManager> serviceBuilder) {
         serviceBuilder.addDependency(TxnServices.JBOSS_TXN_TRANSACTION_MANAGER, TransactionManager.class, partitionManagerService.getTransactionManager());
     }
 

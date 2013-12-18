@@ -22,6 +22,7 @@
 package test.org.picketlink.as.subsystem.federation;
 
 import junit.framework.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.picketlink.as.subsystem.federation.service.IdentityProviderService;
 import org.picketlink.as.subsystem.model.ModelElement;
@@ -34,6 +35,7 @@ import static junit.framework.Assert.*;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
+@Ignore
 public class IdentityProviderServiceTestCase extends AbstractFederationSubsystemTestCase {
 
     /**

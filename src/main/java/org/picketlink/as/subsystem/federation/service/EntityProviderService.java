@@ -21,14 +21,13 @@
  */
 package org.picketlink.as.subsystem.federation.service;
 
-import org.jboss.as.controller.OperationContext;
 import org.jboss.as.server.deployment.DeploymentUnit;
 import org.jboss.as.web.deployment.WarMetaData;
 import org.jboss.as.web.ext.WebContextFactory;
-import org.jboss.dmr.ModelNode;
 import org.jboss.msc.service.StartContext;
 import org.jboss.msc.service.StartException;
 import org.jboss.msc.service.StopContext;
+import org.jboss.msc.value.InjectedValue;
 import org.picketlink.as.subsystem.PicketLinkLogger;
 import org.picketlink.as.subsystem.federation.metrics.PicketLinkSubsystemMetrics;
 import org.picketlink.common.constants.GeneralConstants;
@@ -46,71 +45,62 @@ import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler;
 import org.picketlink.identity.federation.web.handlers.saml2.RolesGenerationHandler;
 import org.picketlink.identity.federation.web.handlers.saml2.SAML2AuthenticationHandler;
 import org.picketlink.identity.federation.web.handlers.saml2.SAML2EncryptionHandler;
-import org.picketlink.identity.federation.web.handlers.saml2.SAML2IssuerTrustHandler;
 import org.picketlink.identity.federation.web.handlers.saml2.SAML2LogOutHandler;
 import org.picketlink.identity.federation.web.handlers.saml2.SAML2SignatureValidationHandler;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.picketlink.identity.federation.core.config.PicketLinkConfigUtil.*;
+import static org.picketlink.identity.federation.core.config.PicketLinkConfigUtil.addHandler;
+import static org.picketlink.identity.federation.core.config.PicketLinkConfigUtil.createSTSType;
 
 /**
- * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- *
  * @param <T>
  * @param <C>
+ *
+ * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
-public abstract class AbstractEntityProviderService<T extends PicketLinkFederationService<T>, C extends ProviderConfiguration> implements PicketLinkFederationService<T> {
-    
+public abstract class EntityProviderService<T extends PicketLinkFederationService<T>, C extends ProviderConfiguration> implements PicketLinkFederationService<T> {
+
+    private STSConfiguration stsConfiguration;
     private PicketLinkType picketLinkType;
     private C configuration;
-    private FederationService federationService;
+    private InjectedValue<FederationService> federationService = new InjectedValue<FederationService>();
     private PicketLinkSubsystemMetrics metrics;
     private static List<Class<? extends SAML2Handler>> commonHandlersList;
 
     static {
         commonHandlersList = new ArrayList<Class<? extends SAML2Handler>>();
-        commonHandlersList.add(SAML2IssuerTrustHandler.class);
         commonHandlersList.add(SAML2LogOutHandler.class);
         commonHandlersList.add(SAML2AuthenticationHandler.class);
         commonHandlersList.add(RolesGenerationHandler.class);
         commonHandlersList.add(SAML2EncryptionHandler.class);
         commonHandlersList.add(SAML2SignatureValidationHandler.class);
     }
-    
-    public AbstractEntityProviderService(OperationContext context, ModelNode operation) {
-        this.federationService = FederationService.getService(context.getServiceRegistry(true), operation);
-        this.configuration = toProviderType(operation);
-        this.configuration.setKeyProvider(this.federationService.getKeyProvider());
-    }
 
-    /**
-     * <p>
-     * Converts a {@link ModelNode} to a {@link ProviderConfiguration} instance.
-     * </p>
-     * 
-     * @param operation
-     * @return
-     */
-    protected abstract C toProviderType(ModelNode operation);
+    public EntityProviderService(C configuration, STSConfiguration stsConfiguration) {
+        this.configuration = configuration;
+        this.stsConfiguration = stsConfiguration;
+    }
 
     @Override
     public void start(StartContext context) throws StartException {
+        PicketLinkLogger.ROOT_LOGGER.info("Starting service for " + getConfiguration().getAlias());
     }
-    
+
     /* (non-Javadoc)
      * @see org.jboss.msc.service.Service#stop(org.jboss.msc.service.StopContext)
      */
     @Override
     public void stop(StopContext context) {
+        PicketLinkLogger.ROOT_LOGGER.info("Stopping service for " + getConfiguration().getAlias());
     }
-    
+
     /**
      * <p>
      * Configures a {@link DeploymentUnit} as a PicketLink Provider.
      * </p>
-     * 
+     *
      * @param deploymentUnit
      */
     public void configure(DeploymentUnit deploymentUnit) {
@@ -118,32 +108,31 @@ public abstract class AbstractEntityProviderService<T extends PicketLinkFederati
         configureWarMetadata(deploymentUnit);
         configurePicketLinkWebContextFactory(deploymentUnit);
         doConfigureDeployment(deploymentUnit);
+        configureTokenProviders();
     }
 
     /**
      * <p>Configure the STS Token Providers.</p>
      */
     private void configureTokenProviders() {
-        STSConfiguration samlConfig = getFederationService().getSamlConfig();
-        
-        if (samlConfig != null) {
-            int tokenTimeout = samlConfig.getTokenTimeout();
-            int clockSkew = samlConfig.getClockSkew();
-            
+        if (this.stsConfiguration != null) {
+            int tokenTimeout = this.stsConfiguration.getTokenTimeout();
+            int clockSkew = this.stsConfiguration.getClockSkew();
+
             this.picketLinkType.getStsType().setTokenTimeout(tokenTimeout);
             this.picketLinkType.getStsType().setClockSkew(clockSkew);
-            
+
             List<TokenProviderType> tokenProviders = this.picketLinkType.getStsType().getTokenProviders().getTokenProvider();
-            
+
             for (TokenProviderType tokenProviderType : tokenProviders) {
                 if (tokenProviderType.getTokenType().equals(JBossSAMLURIConstants.ASSERTION_NSURI.get())) {
                     KeyValueType keyValueTypeTokenTimeout = new KeyValueType();
-                    
+
                     keyValueTypeTokenTimeout.setKey(GeneralConstants.ASSERTIONS_VALIDITY);
                     keyValueTypeTokenTimeout.setValue(String.valueOf(tokenTimeout));
 
                     KeyValueType keyValueTypeClockSkew = new KeyValueType();
-                    
+
                     keyValueTypeClockSkew.setKey(GeneralConstants.CLOCK_SKEW);
                     keyValueTypeClockSkew.setValue(String.valueOf(clockSkew));
 
@@ -159,7 +148,7 @@ public abstract class AbstractEntityProviderService<T extends PicketLinkFederati
      */
     private void configureHandlers() {
         List<Handler> handlers = getPicketLinkType().getHandlers().getHandler();
-        
+
         // remove the common handlers from the configuration. leaving only the user defined handlers.
         for (Class<?> commonHandlerClass : commonHandlersList) {
             for (Handler handler : new ArrayList<Handler>(handlers)) {
@@ -170,41 +159,44 @@ public abstract class AbstractEntityProviderService<T extends PicketLinkFederati
         }
 
         getPicketLinkType().setHandlers(new Handlers());
-        
+
+        for (Class<? extends SAML2Handler> commonHandlerClass : commonHandlersList) {
+            addHandler(commonHandlerClass, getPicketLinkType());
+        }
+
         doAddHandlers();
-        
+
         for (Handler handler : handlers) {
             getPicketLinkType().getHandlers().add(handler);
         }
     }
-    
+
     /**
-     * <p>Adds the common handlers into the configuration.</p>
+     * <p>Hook for pre-configured handlers.</p>
      */
     protected void doAddHandlers() {
-        for (Class<? extends SAML2Handler> commonHandlerClass : commonHandlersList) {
-            addHandler(commonHandlerClass, getPicketLinkType());
-        }
     }
 
     /**
      * <p>Configures the {@link WarMetaData}.</p>
-     * 
+     *
      * @param deploymentUnit
      */
     private void configureWarMetadata(DeploymentUnit deploymentUnit) {
         WarMetaData warMetaData = deploymentUnit.getAttachment(WarMetaData.ATTACHMENT_KEY);
-        
+
         warMetaData.getMergedJBossWebMetaData().setSecurityDomain(this.getConfiguration().getSecurityDomain());
     }
 
     /**
      * <p>
-     * Add a instance of {@link PicketLinkWebContextFactory} to the attachment list for this {@link DeploymentUnit} instance.
-     * This methods allows to pass to the JBoss Web subsystem a custom {@link WebContextFactory} implementation that will be used
-     * to configure the deployment unit.
+     * Add a instance of {@link PicketLinkWebContextFactory} to the attachment list for this {@link DeploymentUnit}
+     * instance.
+     * This methods allows to pass to the JBoss Web subsystem a custom {@link WebContextFactory} implementation that
+     * will be used
+     * to configureDeployment the deployment unit.
      * </p>
-     * 
+     *
      * @param deploymentUnit
      */
     private void configurePicketLinkWebContextFactory(DeploymentUnit deploymentUnit) {
@@ -215,7 +207,7 @@ public abstract class AbstractEntityProviderService<T extends PicketLinkFederati
      * <p>
      * Creates a instance of {@link PicketLinkWebContextFactory}.
      * </p>
-     * 
+     *
      * @return
      */
     private PicketLinkWebContextFactory createPicketLinkWebContextFactory() {
@@ -233,15 +225,16 @@ public abstract class AbstractEntityProviderService<T extends PicketLinkFederati
                 PicketLinkLogger.ROOT_LOGGER.error("Error while configuring the metrics collector. Metrics will not be collected.", e);
             }
         }
-        
+
         return this.metrics;
     }
-    
+
     /**
      * <p>
-     * Subclasses should implement this method to configure a specific PicketLink Provider type. Eg.: Identity Provider or Service Provider. 
+     * Subclasses should implement this method to configureDeployment a specific PicketLink Provider type. Eg.: Identity Provider
+     * or Service Provider.
      * </p>
-     * 
+     *
      * @param deploymentUnit
      */
     protected abstract void doConfigureDeployment(DeploymentUnit deploymentUnit);
@@ -251,22 +244,12 @@ public abstract class AbstractEntityProviderService<T extends PicketLinkFederati
     public T getValue() throws IllegalStateException, IllegalArgumentException {
         return (T) this;
     }
-    
+
     public C getConfiguration() {
-        this.configuration.setKeyProvider(getFederationService().getKeyProvider());
-        
-        if (this.configuration.getKeyProvider() != null) {
-            this.configuration.getKeyProvider().setClassName("org.picketlink.identity.federation.core.impl.KeyStoreKeyManager");
-        }
-        
         return configuration;
     }
-    
-    public void setConfiguration(C configuration) {
-        this.configuration = configuration;
-    }
-    
-    public FederationService getFederationService() {
+
+    public InjectedValue<FederationService> getFederationService() {
         return this.federationService;
     }
 
@@ -277,10 +260,8 @@ public abstract class AbstractEntityProviderService<T extends PicketLinkFederati
             this.picketLinkType.setHandlers(new Handlers());
             this.picketLinkType.setEnableAudit(true);
         }
-        
+
         this.picketLinkType.setIdpOrSP((ProviderType) getConfiguration());
-        
-        configureTokenProviders();
 
         return this.picketLinkType;
     }

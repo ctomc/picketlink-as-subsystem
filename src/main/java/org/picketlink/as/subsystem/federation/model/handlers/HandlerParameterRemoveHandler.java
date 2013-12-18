@@ -22,20 +22,21 @@
 package org.picketlink.as.subsystem.federation.model.handlers;
 
 
-import java.util.ArrayList;
-
 import org.jboss.as.controller.AbstractRemoveStepHandler;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
+import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.dmr.ModelNode;
-import org.picketlink.as.subsystem.federation.service.AbstractEntityProviderService;
+import org.jboss.msc.service.ServiceController;
+import org.picketlink.as.subsystem.federation.service.EntityProviderService;
 import org.picketlink.as.subsystem.federation.service.IdentityProviderService;
 import org.picketlink.as.subsystem.federation.service.ServiceProviderService;
-import org.picketlink.as.subsystem.model.ModelElement;
 import org.picketlink.config.federation.KeyValueType;
 import org.picketlink.config.federation.handler.Handler;
 import org.picketlink.config.federation.handler.Handlers;
+
+import java.util.ArrayList;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -51,12 +52,11 @@ public class HandlerParameterRemoveHandler extends AbstractRemoveStepHandler {
     @Override
     protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model)
             throws OperationFailedException {
-        String providerAlias = operation.get(ModelDescriptionConstants.ADDRESS).asPropertyList().get(2).getValue().asString();
-        String handlerClassName = operation.get(ModelDescriptionConstants.ADDRESS).asPropertyList().get(3).getValue().asString();
-        String paramName = operation.get(ModelElement.COMMON_NAME.getName()).asString();
-
-        AbstractEntityProviderService providerService = getParentProviderService(context, providerAlias);
-
+        PathAddress pathAddress = PathAddress.pathAddress(operation.get(ModelDescriptionConstants.ADDRESS));
+        String providerAlias = pathAddress.subAddress(0, pathAddress.size() - 2).getLastElement().getValue();
+        String handlerClassName = pathAddress.subAddress(0, pathAddress.size() - 1).getLastElement().getValue();
+        String paramName = pathAddress.getLastElement().getValue();
+        EntityProviderService providerService = getParentProviderService(context, providerAlias);
         Handlers handlerChain = providerService.getPicketLinkType().getHandlers();
 
         for (Handler handler : new ArrayList<Handler>(handlerChain.getHandler())) {
@@ -72,7 +72,7 @@ public class HandlerParameterRemoveHandler extends AbstractRemoveStepHandler {
     
     /**
      * <p>
-     * Returns the {@link AbstractEntityProviderService} instance to be used during the handler configuration.
+     * Returns the {@link org.picketlink.as.subsystem.federation.service.EntityProviderService} instance to be used during the handler configuration.
      * </p>
      * 
      * @param context
@@ -80,14 +80,15 @@ public class HandlerParameterRemoveHandler extends AbstractRemoveStepHandler {
      * @return
      */
     @SuppressWarnings("rawtypes")
-    private AbstractEntityProviderService getParentProviderService(OperationContext context, String providerAlias) {
-        AbstractEntityProviderService providerService = IdentityProviderService.getService(context.getServiceRegistry(true),
-                providerAlias);
+    private EntityProviderService getParentProviderService(OperationContext context, String providerAlias) {
+        ServiceController<? extends EntityProviderService> serviceController =
+                (ServiceController<IdentityProviderService>) context.getServiceRegistry(true).getService(IdentityProviderService.createServiceName(providerAlias));
 
-        if (providerService == null) {
-            providerService = ServiceProviderService.getService(context.getServiceRegistry(true), providerAlias);
+        if (serviceController == null) {
+            serviceController = (ServiceController<ServiceProviderService>) context.getServiceRegistry(true).getService(ServiceProviderService.createServiceName(providerAlias));
         }
-        return providerService;
+
+        return serviceController.getValue();
     }
     
 }

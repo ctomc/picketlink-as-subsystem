@@ -36,7 +36,7 @@ public class CredentialHandlerResourceDefinition extends AbstractResourceDefinit
 
     public static final SimpleAttributeDefinition CLASS = new SimpleAttributeDefinitionBuilder(
             ModelElement.COMMON_CLASS.getName(), ModelType.STRING, false)
-            .setAllowExpression(false).build();
+            .setAllowExpression(true).build();
 
     public static final CredentialHandlerResourceDefinition INSTANCE = new CredentialHandlerResourceDefinition(CLASS);
 

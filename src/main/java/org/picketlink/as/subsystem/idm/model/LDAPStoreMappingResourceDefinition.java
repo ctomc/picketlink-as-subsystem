@@ -36,19 +36,19 @@ import org.picketlink.as.subsystem.model.ModelElement;
 public class LDAPStoreMappingResourceDefinition extends AbstractResourceDefinition {
 
     public static final SimpleAttributeDefinition CLASS = new SimpleAttributeDefinitionBuilder(
-            ModelElement.LDAP_STORE_MAPPING_CLASS.getName(), ModelType.STRING, false).setAllowExpression(false).build();
+            ModelElement.LDAP_STORE_MAPPING_CLASS.getName(), ModelType.STRING, false).setAllowExpression(true).build();
 
     public static final SimpleAttributeDefinition BASE_DN = new SimpleAttributeDefinitionBuilder(
-            ModelElement.LDAP_STORE_MAPPING_BASE_DN.getName(), ModelType.STRING, true).setAllowExpression(false).build();
+            ModelElement.LDAP_STORE_MAPPING_BASE_DN.getName(), ModelType.STRING, true).setAllowExpression(true).build();
 
     public static final SimpleAttributeDefinition OBJECT_CLASSES = new SimpleAttributeDefinitionBuilder(
-            ModelElement.LDAP_STORE_MAPPING_OBJECT_CLASSES.getName(), ModelType.STRING, true).setAllowExpression(false).build();
+            ModelElement.LDAP_STORE_MAPPING_OBJECT_CLASSES.getName(), ModelType.STRING, true).setAllowExpression(true).build();
 
     public static final SimpleAttributeDefinition PARENT_ATTRIBUTE = new SimpleAttributeDefinitionBuilder(
-            ModelElement.LDAP_STORE_MAPPING_PARENT_ATTRIBUTE_NAME.getName(), ModelType.STRING, true).setAllowExpression(false).build();
+            ModelElement.LDAP_STORE_MAPPING_PARENT_ATTRIBUTE_NAME.getName(), ModelType.STRING, true).setAllowExpression(true).build();
 
     public static final SimpleAttributeDefinition RELATES_TO = new SimpleAttributeDefinitionBuilder(
-            ModelElement.LDAP_STORE_MAPPING_RELATES_TO.getName(), ModelType.STRING, true).setAllowExpression(false).build();
+            ModelElement.LDAP_STORE_MAPPING_RELATES_TO.getName(), ModelType.STRING, true).setAllowExpression(true).build();
 
     public static final LDAPStoreMappingResourceDefinition INSTANCE = new LDAPStoreMappingResourceDefinition(CLASS, BASE_DN, OBJECT_CLASSES,
             PARENT_ATTRIBUTE, RELATES_TO);

@@ -23,7 +23,6 @@ package org.picketlink.as.subsystem.core;
 
 import org.picketlink.producer.IdentityManagerProducer;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.inject.spi.BeforeBeanDiscovery;
@@ -38,7 +37,6 @@ import javax.enterprise.inject.spi.ProcessAnnotatedType;
  * @author <a href="mailto:sthorger@redhat.com">Stian Thorgersen</a>
  * @author Pedro Igor
  */
-@ApplicationScoped
 public class PicketLinkCoreSubsystemExtension implements Extension {
 
     private String partitionManagerJNDIUrl;

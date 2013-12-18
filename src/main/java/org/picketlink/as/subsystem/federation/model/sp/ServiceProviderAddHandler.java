@@ -23,45 +23,44 @@
 package org.picketlink.as.subsystem.federation.model.sp;
 
 
-import java.util.List;
-
+import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
+import org.jboss.as.controller.PathAddress;
+import org.jboss.as.controller.RestartParentResourceAddHandler;
 import org.jboss.as.controller.ServiceVerificationHandler;
 import org.jboss.dmr.ModelNode;
-import org.jboss.msc.service.ServiceController;
-import org.jboss.msc.service.ServiceController.Mode;
 import org.jboss.msc.service.ServiceName;
-import org.picketlink.as.subsystem.federation.service.ServiceProviderService;
-import org.picketlink.as.subsystem.model.AbstractResourceAddStepHandler;
+import org.picketlink.as.subsystem.federation.model.FederationAddHandler;
+import org.picketlink.as.subsystem.federation.service.FederationService;
 import org.picketlink.as.subsystem.model.ModelElement;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
-public class ServiceProviderAddHandler extends AbstractResourceAddStepHandler {
+public class ServiceProviderAddHandler extends RestartParentResourceAddHandler {
 
     public static final ServiceProviderAddHandler INSTANCE = new ServiceProviderAddHandler();
 
     private ServiceProviderAddHandler() {
-        super(ModelElement.SERVICE_PROVIDER);
+        super(ModelElement.FEDERATION.getName());
     }
 
-    /* (non-Javadoc)
-     * @see org.jboss.as.controller.AbstractAddStepHandler#performRuntime(org.jboss.as.controller.OperationContext, org.jboss.dmr.ModelNode, org.jboss.dmr.ModelNode, org.jboss.as.controller.ServiceVerificationHandler, java.util.List)
-     */
     @Override
-    protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model,
-            ServiceVerificationHandler verificationHandler, List<ServiceController<?>> newControllers)
-            throws OperationFailedException {
-        ServiceProviderService service = new ServiceProviderService(context, operation);
-        
-        ServiceName name = ServiceProviderService.createServiceName(service.getConfiguration().getAlias());
-        
-        ServiceController<ServiceProviderService> controller = context.getServiceTarget().addService(name, service)
-                .addListener(verificationHandler).setInitialMode(Mode.ACTIVE).install();
-
-        newControllers.add(controller);
+    protected void recreateParentService(OperationContext context, PathAddress parentAddress, ModelNode parentModel,
+                                         ServiceVerificationHandler verificationHandler) throws OperationFailedException {
+        FederationAddHandler.INSTANCE.createFederationService(parentModel, context, verificationHandler, null);
     }
 
+    @Override
+    protected ServiceName getParentServiceName(PathAddress parentAddress) {
+        return FederationService.createServiceName(parentAddress.getLastElement().getValue());
+    }
+
+    @Override
+    protected void populateModel(ModelNode operation, ModelNode model) throws OperationFailedException {
+        for (AttributeDefinition attribute : ServiceProviderResourceDefinition.INSTANCE.getAttributes()) {
+            attribute.validateAndSet(operation, model);
+        }
+    }
 }

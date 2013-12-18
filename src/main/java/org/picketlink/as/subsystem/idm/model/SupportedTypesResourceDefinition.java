@@ -38,7 +38,7 @@ public class SupportedTypesResourceDefinition extends AbstractResourceDefinition
 
     public static final SimpleAttributeDefinition SUPPORTS_ALL = new SimpleAttributeDefinitionBuilder(
             ModelElement.COMMON_SUPPORTS_ALL.getName(), ModelType.BOOLEAN, true).setDefaultValue(new ModelNode().set("true"))
-            .setAllowExpression(false).build();
+            .setAllowExpression(true).build();
 
     public static final SupportedTypesResourceDefinition INSTANCE = new SupportedTypesResourceDefinition(SUPPORTS_ALL);
     

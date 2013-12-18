@@ -38,30 +38,30 @@ public class JPAStoreResourceDefinition extends AbstractResourceDefinition {
 
     public static final SimpleAttributeDefinition DATA_SOURCE = new SimpleAttributeDefinitionBuilder(
             ModelElement.JPA_STORE_DATASOURCE.getName(), ModelType.STRING, true)
-            .setAllowExpression(false).build();
+            .setAllowExpression(true).build();
 
     public static final SimpleAttributeDefinition ENTITY_MODULE = new SimpleAttributeDefinitionBuilder(
             ModelElement.JPA_STORE_ENTITY_MODULE.getName(), ModelType.STRING, true)
-            .setAllowExpression(false).build();
+            .setAllowExpression(true).build();
 
     public static final SimpleAttributeDefinition ENTITY_MODULE_UNIT_NAME = new SimpleAttributeDefinitionBuilder(
             ModelElement.JPA_STORE_ENTITY_MODULE_UNIT_NAME.getName(), ModelType.STRING, true)
-            .setAllowExpression(false).build();
+            .setAllowExpression(true).build();
 
     public static final SimpleAttributeDefinition ENTITY_MANAGER_FACTORY = new SimpleAttributeDefinitionBuilder(
             ModelElement.JPA_STORE_ENTITY_MANAGER_FACTORY.getName(), ModelType.STRING, true)
-            .setAllowExpression(false).build();
+            .setAllowExpression(true).build();
 
     public static final SimpleAttributeDefinition MODULE = new SimpleAttributeDefinitionBuilder(
-            ModelElement.COMMON_MODULE.getName(), ModelType.STRING, true).setAllowExpression(false).build();
+            ModelElement.COMMON_MODULE.getName(), ModelType.STRING, true).setAllowExpression(true).build();
 
     public static final SimpleAttributeDefinition SUPPORT_ATTRIBUTE = new SimpleAttributeDefinitionBuilder(
             ModelElement.IDENTITY_STORE_SUPPORT_ATTRIBUTE.getName(), ModelType.BOOLEAN, true).setDefaultValue(new ModelNode(true))
-            .setAllowExpression(false).build();
+            .setAllowExpression(true).build();
 
     public static final SimpleAttributeDefinition SUPPORT_CREDENTIAL = new SimpleAttributeDefinitionBuilder(
             ModelElement.IDENTITY_STORE_SUPPORT_CREDENTIAL.getName(), ModelType.BOOLEAN, true).setDefaultValue(new ModelNode(true))
-            .setAllowExpression(false).build();
+            .setAllowExpression(true).build();
 
     public static final JPAStoreResourceDefinition INSTANCE = new JPAStoreResourceDefinition(DATA_SOURCE, ENTITY_MODULE, ENTITY_MODULE_UNIT_NAME, ENTITY_MANAGER_FACTORY, MODULE, SUPPORT_ATTRIBUTE, SUPPORT_CREDENTIAL);
 

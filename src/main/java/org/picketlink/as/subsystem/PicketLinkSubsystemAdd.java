@@ -1,9 +1,5 @@
 package org.picketlink.as.subsystem;
 
-import static org.picketlink.as.subsystem.PicketLinkLogger.ROOT_LOGGER;
-
-import java.util.List;
-
 import org.jboss.as.controller.AbstractBoottimeAddStepHandler;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
@@ -17,6 +13,10 @@ import org.picketlink.as.subsystem.deployment.PicketLinkDependencyDeploymentProc
 import org.picketlink.as.subsystem.deployment.PicketLinkStructureDeploymentProcessor;
 import org.picketlink.as.subsystem.federation.deployment.FederationDeploymentProcessor;
 import org.picketlink.as.subsystem.idm.deployment.PicketLinkIDMDeploymentProcessor;
+
+import java.util.List;
+
+import static org.picketlink.as.subsystem.PicketLinkLogger.ROOT_LOGGER;
 
 /**
  * <p>

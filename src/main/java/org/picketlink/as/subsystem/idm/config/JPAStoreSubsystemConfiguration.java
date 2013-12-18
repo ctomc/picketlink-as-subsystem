@@ -92,7 +92,7 @@ public class JPAStoreSubsystemConfiguration extends JPAIdentityStoreConfiguratio
             configureEntityManagerFactory();
             configureEntities();
         } catch (Exception e) {
-            throw new SecurityConfigurationException("Could not configure JPA store.", e);
+            throw new SecurityConfigurationException("Could not configureDeployment JPA store.", e);
         }
     }
 

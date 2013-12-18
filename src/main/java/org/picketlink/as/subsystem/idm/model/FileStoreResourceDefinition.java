@@ -38,30 +38,30 @@ public class FileStoreResourceDefinition extends AbstractResourceDefinition {
 
     public static final SimpleAttributeDefinition WORKING_DIR = new SimpleAttributeDefinitionBuilder(
             ModelElement.FILE_STORE_WORKING_DIR.getName(), ModelType.STRING, true)
-            .setAllowExpression(false).build();
+            .setAllowExpression(true).build();
 
     public static final SimpleAttributeDefinition ALWAYS_CREATE_FILE = new SimpleAttributeDefinitionBuilder(
             ModelElement.FILE_STORE_ALWAYS_CREATE_FILE.getName(), ModelType.BOOLEAN, true)
-            .setAllowExpression(false).build();
+            .setAllowExpression(true).build();
 
     public static final SimpleAttributeDefinition ASYNC_WRITE = new SimpleAttributeDefinitionBuilder(
             ModelElement.FILE_STORE_ASYNC_WRITE.getName(), ModelType.BOOLEAN, true)
-            .setAllowExpression(false).build();
+            .setAllowExpression(true).build();
 
     public static final SimpleAttributeDefinition ASYNC_WRITE_THREAD_POOL = new SimpleAttributeDefinitionBuilder(
             ModelElement.FILE_STORE_ASYNC_THREAD_POOL.getName(), ModelType.INT, true)
-            .setAllowExpression(false).build();
+            .setAllowExpression(true).build();
 
     public static final SimpleAttributeDefinition SUPPORT_ATTRIBUTE = new SimpleAttributeDefinitionBuilder(
             ModelElement.IDENTITY_STORE_SUPPORT_ATTRIBUTE.getName(), ModelType.BOOLEAN, true).setDefaultValue(new ModelNode(true))
-            .setAllowExpression(false).build();
+            .setAllowExpression(true).build();
 
     public static final SimpleAttributeDefinition SUPPORT_CREDENTIAL = new SimpleAttributeDefinitionBuilder(
             ModelElement.IDENTITY_STORE_SUPPORT_CREDENTIAL.getName(), ModelType.BOOLEAN, true).setDefaultValue(new ModelNode(true))
-            .setAllowExpression(false).build();
+            .setAllowExpression(true).build();
 
     public static final SimpleAttributeDefinition MODULE = new SimpleAttributeDefinitionBuilder(
-            ModelElement.COMMON_MODULE.getName(), ModelType.STRING, true).setAllowExpression(false).build();
+            ModelElement.COMMON_MODULE.getName(), ModelType.STRING, true).setAllowExpression(true).build();
 
     public static final FileStoreResourceDefinition INSTANCE = new FileStoreResourceDefinition(WORKING_DIR, ALWAYS_CREATE_FILE, ASYNC_WRITE, ASYNC_WRITE_THREAD_POOL, MODULE, SUPPORT_ATTRIBUTE, SUPPORT_CREDENTIAL);
 

@@ -22,24 +22,27 @@
 
 package org.picketlink.as.subsystem.model;
 
-import org.jboss.as.controller.PathAddress;
+import org.jboss.as.controller.OperationContext;
+import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.dmr.ModelNode;
+import org.picketlink.as.subsystem.federation.model.KeyProviderResourceDefinition;
+import org.picketlink.as.subsystem.federation.model.idp.IdentityProviderResourceDefinition;
+import org.picketlink.as.subsystem.federation.model.saml.SAMLResourceDefinition;
+import org.picketlink.as.subsystem.federation.model.sp.ServiceProviderResourceDefinition;
 import org.picketlink.config.federation.AuthPropertyType;
 import org.picketlink.config.federation.KeyProviderType;
 import org.picketlink.identity.federation.core.config.IDPConfiguration;
 import org.picketlink.identity.federation.core.config.SPConfiguration;
 import org.picketlink.identity.federation.core.config.STSConfiguration;
-
-import static org.picketlink.as.subsystem.model.ModelElement.*;
+import org.picketlink.identity.federation.core.impl.KeyStoreKeyManager;
 
 /**
  * <p>
  * Utility methods for the PicketLink Subsystem's model.
  * </p>
- * 
- * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
+ * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
 public class ModelUtils {
 
@@ -47,213 +50,185 @@ public class ModelUtils {
      * <p>
      * Extract from the ${@ModelNode} instance the federation's alias attribute value.
      * </p>
-     * 
+     *
      * @param fromModel
+     *
      * @return
      */
     public static String getFederationAlias(ModelNode fromModel) {
         return fromModel.get(ModelDescriptionConstants.ADDRESS).asPropertyList().get(1).getValue().asString();
     }
-    
-    /**
-     * <p>
-     *  Converts a {@ModelNode} instance to a {@link STSConfiguration} instance.
-     *  This method should be used to extract attributes from the <code>ModelElement.SECURITY_TOKEN_SERVICE</code> model. 
-     * </p>
-     * 
-     * @param model
-     * @return
-     */
-    public static final STSConfiguration toSTSConfig(ModelNode fromModel) {
-        String alias = PathAddress.pathAddress(fromModel.get(ModelDescriptionConstants.ADDRESS)).getLastElement().getValue();
-        String securityDomain = fromModel.get(COMMON_SECURITY_DOMAIN.getName()).asString();
-
-        STSConfiguration stsType = new STSConfiguration();
-        
-        stsType.setAlias(alias);
-        stsType.setSecurityDomain(securityDomain);
-        
-        return stsType;
-    }
 
     /**
      * <p>
-     *  Converts a {@ModelNode} instance to a {@link STSConfiguration} instance. 
-     *  This method only extract the attributes defined in the <code>ModelElement.SAML</code> model.
+     * Converts a {@ModelNode} instance to a {@link STSConfiguration} instance.
+     * This method only extract the attributes defined in the <code>ModelElement.SAML</code> model.
      * </p>
-     * 
+     *
      * @param model
+     *
      * @return
      */
-    public static final STSConfiguration toSAMLConfig(ModelNode fromModel) {
-        int tokenTimeout = fromModel.get(ModelElement.SAML_TOKEN_TIMEOUT.getName()).asInt();
-        int clockSkew = fromModel.get(ModelElement.SAML_CLOCK_SKEW.getName()).asInt();
+    public static final STSConfiguration toSAMLConfig(OperationContext context, ModelNode fromModel) throws OperationFailedException {
+        int tokenTimeout = SAMLResourceDefinition.TOKEN_TIMEOUT.resolveModelAttribute(context, fromModel).asInt();
+        int clockSkew = SAMLResourceDefinition.CLOCK_SKEW.resolveModelAttribute(context, fromModel).asInt();
 
         STSConfiguration stsType = new STSConfiguration();
-        
+
         stsType.setTokenTimeout(tokenTimeout);
         stsType.setClockSkew(clockSkew);
-        
+
         return stsType;
     }
 
     /**
      * <p>
-     *  Converts a {@ModelNode} instance to a {@link SPConfiguration} instance. 
+     * Converts a {@ModelNode} instance to a {@link SPConfiguration} instance.
      * </p>
-     * 
+     *
      * @param model
+     *
      * @return
      */
-    public static SPConfiguration toSPConfig(ModelNode fromModel) {
+    public static SPConfiguration toSPConfig(OperationContext context, ModelNode fromModel) throws OperationFailedException {
         SPConfiguration spType = new SPConfiguration();
-        
-        String alias = fromModel.get(COMMON_ALIAS.getName()).asString();
-        
+
+        String alias = ServiceProviderResourceDefinition.ALIAS.resolveModelAttribute(context, fromModel).asString();
+
         spType.setAlias(alias);
-        
-        String url = fromModel.get(COMMON_URL.getName()).asString();
-        
+
+        String url = ServiceProviderResourceDefinition.URL.resolveModelAttribute(context, fromModel).asString();
+
         spType.setServiceURL(url);
-        
-        String securityDomain = fromModel.get(COMMON_SECURITY_DOMAIN.getName()).asString();
-        
+
+        String securityDomain = ServiceProviderResourceDefinition.SECURITY_DOMAIN.resolveModelAttribute(context, fromModel).asString();
+
         spType.setSecurityDomain(securityDomain);
-        
-        boolean postBinding = fromModel.get(SERVICE_PROVIDER_POST_BINDING.getName()).asBoolean();
-        
+
+        boolean postBinding = ServiceProviderResourceDefinition.POST_BINDING.resolveModelAttribute(context, fromModel).asBoolean();
+
         if (postBinding) {
             spType.setBindingType("POST");
         } else {
             spType.setBindingType("REDIRECT");
         }
-        
+
         spType.setPostBinding(postBinding);
-        
-        ModelNode supportsSignatures = fromModel.get(COMMON_SUPPORTS_SIGNATURES.getName());
-        
-        if (supportsSignatures.isDefined()) {
-            spType.setSupportsSignature(supportsSignatures.asBoolean());
-        }
-        
-        ModelNode strictPostBinding = fromModel.get(COMMON_STRICT_POST_BINDING.getName());
-        
-        if (strictPostBinding.isDefined()) {
-            spType.setIdpUsesPostBinding(strictPostBinding.asBoolean());
-        }
 
-        ModelNode errorPage = fromModel.get(SERVICE_PROVIDER_ERROR_PAGE.getName());
-        
-        if (errorPage.isDefined()) {
-            spType.setErrorPage(errorPage.asString());
-        }
+        boolean supportsSignatures = ServiceProviderResourceDefinition.SUPPORTS_SIGNATURES.resolveModelAttribute(context, fromModel).asBoolean();
 
-        ModelNode logoutPage = fromModel.get(SERVICE_PROVIDER_LOGOUT_PAGE.getName());
-        
-        if (logoutPage.isDefined()) {
-            spType.setLogOutPage(logoutPage.asString());
-        }
+        spType.setSupportsSignature(supportsSignatures);
+
+        boolean strictPostBinding = ServiceProviderResourceDefinition.STRICT_POST_BINDING.resolveModelAttribute(context, fromModel).asBoolean();
+
+        spType.setIdpUsesPostBinding(strictPostBinding);
+
+        String errorPage = ServiceProviderResourceDefinition.ERROR_PAGE.resolveModelAttribute(context, fromModel).asString();
+
+        spType.setErrorPage(errorPage);
+
+        String logoutPage = ServiceProviderResourceDefinition.LOGOUT_PAGE.resolveModelAttribute(context, fromModel).asString();
+
+        spType.setLogOutPage(logoutPage);
 
         return spType;
     }
-    
+
     /**
      * <p>
-     *  Converts a {@ModelNode} instance to a {@link IDPConfiguration} instance. 
+     * Converts a {@ModelNode} instance to a {@link IDPConfiguration} instance.
      * </p>
-     * 
+     *
      * @param model
+     *
      * @return
      */
-    public static IDPConfiguration toIDPConfig(ModelNode fromModel) {
+    public static IDPConfiguration toIDPConfig(OperationContext context, ModelNode fromModel) throws OperationFailedException {
         IDPConfiguration idpType = new IDPConfiguration();
-        
-        String alias = fromModel.get(COMMON_ALIAS.getName()).asString();
-        
+
+        String alias = IdentityProviderResourceDefinition.ALIAS.resolveModelAttribute(context, fromModel).asString();
+
         idpType.setAlias(alias);
-        
-        String url = fromModel.get(COMMON_URL.getName()).asString();
-        
+
+        String url = IdentityProviderResourceDefinition.URL.resolveModelAttribute(context, fromModel).asString();
+
         idpType.setIdentityURL(url);
-        
-        ModelNode supportsSignatures = fromModel.get(COMMON_SUPPORTS_SIGNATURES.getName());
-        
-        if (supportsSignatures.isDefined()) {
-            idpType.setSupportsSignature(supportsSignatures.asBoolean());
-        }
 
-        ModelNode encrypt = fromModel.get(IDENTITY_PROVIDER_ENCRYPT.getName());
-        
-        if (encrypt.isDefined()) {
-            idpType.setEncrypt(encrypt.asBoolean());
-        }
+        boolean supportsSignatures = IdentityProviderResourceDefinition.SUPPORTS_SIGNATURES.resolveModelAttribute(context, fromModel).asBoolean();
 
-        ModelNode strictPostBinding = fromModel.get(COMMON_STRICT_POST_BINDING.getName());
-        
-        if (strictPostBinding.isDefined()) {
-            idpType.setStrictPostBinding(strictPostBinding.asBoolean());
-        }
+        idpType.setSupportsSignature(supportsSignatures);
 
-        String securityDomain = fromModel.get(COMMON_SECURITY_DOMAIN.getName()).asString();
-        
+        boolean encrypt = IdentityProviderResourceDefinition.ENCRYPT.resolveModelAttribute(context, fromModel).asBoolean();
+
+        idpType.setEncrypt(encrypt);
+
+        boolean strictPostBinding = IdentityProviderResourceDefinition.STRICT_POST_BINDING.resolveModelAttribute(context, fromModel).asBoolean();
+
+        idpType.setStrictPostBinding(strictPostBinding);
+
+        String securityDomain = IdentityProviderResourceDefinition.SECURITY_DOMAIN.resolveModelAttribute(context, fromModel).asString();
+
         idpType.setSecurityDomain(securityDomain);
 
-        ModelNode attributeManager = fromModel.get(ModelElement.IDENTITY_PROVIDER_ATTRIBUTE_MANAGER.getName());
-        
+        ModelNode attributeManager = IdentityProviderResourceDefinition.ATTRIBUTE_MANAGER.resolveModelAttribute(context, fromModel);
+
         if (attributeManager.isDefined()) {
             idpType.setAttributeManager(attributeManager.asString());
         }
 
-        ModelNode roleGenerator = fromModel.get(ModelElement.IDENTITY_PROVIDER_ROLE_GENERATOR.getName());
-        
+        ModelNode roleGenerator = IdentityProviderResourceDefinition.ROLE_GENERATOR.resolveModelAttribute(context, fromModel);
+
         if (roleGenerator.isDefined()) {
             idpType.setRoleGenerator(roleGenerator.asString());
         }
 
         return idpType;
     }
-    
+
     /**
      * <p>
-     *  Converts a {@ModelNode} instance to a {@KeyProviderType} instance. 
+     * Converts a {@ModelNode} instance to a {@KeyProviderType} instance.
      * </p>
-     * 
+     *
      * @param model
+     *
      * @return
      */
-    public static KeyProviderType toKeyProviderType(ModelNode model) {
+    public static KeyProviderType toKeyProviderType(OperationContext context, ModelNode model) throws OperationFailedException {
         KeyProviderType keyProviderType = new KeyProviderType();
-        
-        keyProviderType.setSigningAlias(model.get(ModelElement.KEY_STORE_SIGN_KEY_ALIAS.getName()).asString());
-        
+
+        keyProviderType.setClassName(KeyStoreKeyManager.class.getName());
+
+        keyProviderType.setSigningAlias(KeyProviderResourceDefinition.SIGN_KEY_ALIAS.resolveModelAttribute(context, model).asString());
+
         AuthPropertyType keyStoreURL = new AuthPropertyType();
-        
+
         keyStoreURL.setKey("KeyStoreURL");
-        keyStoreURL.setValue(model.get(ModelElement.COMMON_URL.getName()).asString());
-        
+        keyStoreURL.setValue(KeyProviderResourceDefinition.URL.resolveModelAttribute(context, model).asString());
+
         keyProviderType.add(keyStoreURL);
-        
+
         AuthPropertyType keyStorePass = new AuthPropertyType();
 
         keyStorePass.setKey("KeyStorePass");
-        keyStorePass.setValue(model.get(ModelElement.KEY_STORE_PASSWD.getName()).asString());
+        keyStorePass.setValue(KeyProviderResourceDefinition.PASSWD.resolveModelAttribute(context, model).asString());
 
         keyProviderType.add(keyStorePass);
-        
+
         AuthPropertyType signingKeyPass = new AuthPropertyType();
 
         signingKeyPass.setKey("SigningKeyPass");
-        signingKeyPass.setValue(model.get(ModelElement.KEY_STORE_SIGN_KEY_PASSWD.getName()).asString());
+        signingKeyPass.setValue(KeyProviderResourceDefinition.SIGN_KEY_PASSWD.resolveModelAttribute(context, model).asString());
 
         keyProviderType.add(signingKeyPass);
 
         AuthPropertyType signingKeyAlias = new AuthPropertyType();
 
         signingKeyAlias.setKey("SigningKeyAlias");
-        signingKeyAlias.setValue(model.get(ModelElement.KEY_STORE_SIGN_KEY_ALIAS.getName()).asString());
+        signingKeyAlias.setValue(KeyProviderResourceDefinition.SIGN_KEY_ALIAS.resolveModelAttribute(context, model).asString());
 
         keyProviderType.add(signingKeyAlias);
-        
+
         return keyProviderType;
     }
 }

@@ -29,7 +29,7 @@ import org.jboss.as.server.deployment.Phase;
 import org.picketlink.as.subsystem.PicketLinkLogger;
 import org.picketlink.as.subsystem.federation.service.PicketLinkFederationService;
 
-import static org.picketlink.as.subsystem.deployment.PicketLinkAttachments.*;
+import static org.picketlink.as.subsystem.deployment.PicketLinkAttachments.FEDERATION_ATTACHMENT_KEY;
 
 /**
  * <p>{@link DeploymentUnitProcessor} that configures a {@link PicketLinkFederationService} associated with deployments..</p>
@@ -46,7 +46,7 @@ public class FederationDeploymentProcessor implements DeploymentUnitProcessor {
     public void deploy(DeploymentPhaseContext phaseContext) throws DeploymentUnitProcessingException {
         DeploymentUnit deploymentUnit = phaseContext.getDeploymentUnit();
 
-        PicketLinkFederationService<?> attachment = deploymentUnit.getAttachment(FEDERATION_ATTACHMENT_KEY);
+        PicketLinkFederationService<?> attachment = getFederationService(deploymentUnit);
 
         if (attachment != null) {
             PicketLinkFederationService<?> service = (PicketLinkFederationService<?>) attachment.getValue();
@@ -59,7 +59,12 @@ public class FederationDeploymentProcessor implements DeploymentUnitProcessor {
     }
 
     @Override
-    public void undeploy(DeploymentUnit context) {
+    public void undeploy(DeploymentUnit deploymentUnit) {
     }
+
+    private PicketLinkFederationService<?> getFederationService(final DeploymentUnit deploymentUnit) {
+        return deploymentUnit.getAttachment(FEDERATION_ATTACHMENT_KEY);
+    }
+
 
 }

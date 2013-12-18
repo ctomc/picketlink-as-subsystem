@@ -22,32 +22,29 @@
 
 package org.picketlink.as.subsystem.federation.model.handlers;
 
-import java.util.List;
-
+import org.jboss.as.controller.AbstractAddStepHandler;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
+import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.ServiceVerificationHandler;
+import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.dmr.ModelNode;
 import org.jboss.msc.service.ServiceController;
-import org.picketlink.as.subsystem.federation.service.AbstractEntityProviderService;
+import org.picketlink.as.subsystem.federation.service.EntityProviderService;
 import org.picketlink.as.subsystem.federation.service.IdentityProviderService;
 import org.picketlink.as.subsystem.federation.service.ServiceProviderService;
-import org.picketlink.as.subsystem.model.AbstractResourceAddStepHandler;
-import org.picketlink.as.subsystem.model.ModelElement;
 import org.picketlink.config.federation.handler.Handler;
 import org.picketlink.config.federation.handler.Handlers;
+
+import java.util.List;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
-public class HandlerAddHandler extends AbstractResourceAddStepHandler {
+public class HandlerAddHandler extends AbstractAddStepHandler {
 
     public static final HandlerAddHandler INSTANCE = new HandlerAddHandler();
-
-    private HandlerAddHandler() {
-        super(ModelElement.COMMON_HANDLER);
-    }
 
     /* (non-Javadoc)
      * @see org.jboss.as.controller.AbstractAddStepHandler#performRuntime(org.jboss.as.controller.OperationContext, org.jboss.dmr.ModelNode, org.jboss.dmr.ModelNode, org.jboss.as.controller.ServiceVerificationHandler, java.util.List)
@@ -57,35 +54,43 @@ public class HandlerAddHandler extends AbstractResourceAddStepHandler {
     protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model,
             ServiceVerificationHandler verificationHandler, List<ServiceController<?>> newControllers)
             throws OperationFailedException {
-        String providerAlias = operation.get(ModelDescriptionConstants.ADDRESS).asPropertyList().get(2).getValue().asString();
-        String className = operation.get(ModelElement.COMMON_CLASS.getName()).asString();
-        
-        AbstractEntityProviderService providerService = getParentProviderService(context, providerAlias);
-        
+        PathAddress pathAddress = PathAddress.pathAddress(operation.get(ModelDescriptionConstants.ADDRESS));
+        String providerAlias = pathAddress.subAddress(0, pathAddress.size() - 1).getLastElement().getValue();
+        String className = HandlerResourceDefinition.CLASS.resolveModelAttribute(context, model).asString();
+        EntityProviderService providerService = getParentProviderService(context, providerAlias);
+
         Handlers handlerChain = providerService.getPicketLinkType().getHandlers();
-        
         Handler newHandler = new Handler();
-        
+
         newHandler.setClazz(className);
-        
+
         handlerChain.add(newHandler);
     }
 
+    @Override
+    protected void populateModel(ModelNode operation, ModelNode model) throws OperationFailedException {
+        for (SimpleAttributeDefinition attribute: HandlerResourceDefinition.INSTANCE.getAttributes()) {
+            attribute.validateAndSet(operation, model);
+        }
+    }
+
     /**
-     * <p>Returns the {@link AbstractEntityProviderService} instance to be used during the handler configuration.</p>
-     * 
+     * <p>Returns the {@link org.picketlink.as.subsystem.federation.service.EntityProviderService} instance to be used during the handler configuration.</p>
+     *
      * @param context
      * @param providerAlias
      * @return
      */
     @SuppressWarnings("rawtypes")
-    private AbstractEntityProviderService getParentProviderService(OperationContext context, String providerAlias) {
-        AbstractEntityProviderService providerService = IdentityProviderService.getService(context.getServiceRegistry(true), providerAlias);
-        
-        if (providerService == null) {
-            providerService = ServiceProviderService.getService(context.getServiceRegistry(true), providerAlias);
+    private EntityProviderService getParentProviderService(OperationContext context, String providerAlias) {
+        ServiceController<? extends EntityProviderService> serviceController =
+                (ServiceController<IdentityProviderService>) context.getServiceRegistry(true).getService(IdentityProviderService.createServiceName(providerAlias));
+
+        if (serviceController == null) {
+            serviceController = (ServiceController<ServiceProviderService>) context.getServiceRegistry(true).getService(ServiceProviderService.createServiceName(providerAlias));
         }
-        return providerService;
+
+        return serviceController.getValue();
     }
-    
+
 }

@@ -22,40 +22,37 @@
 
 package org.picketlink.as.subsystem.federation.service;
 
-import org.jboss.as.controller.OperationContext;
 import org.jboss.as.server.deployment.DeploymentUnit;
-import org.jboss.dmr.ModelNode;
-import org.jboss.msc.service.ServiceController;
 import org.jboss.msc.service.ServiceName;
-import org.jboss.msc.service.ServiceRegistry;
 import org.jboss.msc.service.StartContext;
 import org.jboss.msc.service.StartException;
 import org.jboss.msc.service.StopContext;
-import org.picketlink.as.subsystem.model.ModelUtils;
 import org.picketlink.config.federation.KeyValueType;
 import org.picketlink.config.federation.TrustType;
 import org.picketlink.identity.federation.core.config.IDPConfiguration;
+import org.picketlink.identity.federation.core.config.PicketLinkConfigUtil;
+import org.picketlink.identity.federation.core.config.STSConfiguration;
+import org.picketlink.identity.federation.web.handlers.saml2.SAML2IssuerTrustHandler;
 
 /** ty Provider.
  * </p>
  * 
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
-public class IdentityProviderService extends AbstractEntityProviderService<IdentityProviderService, IDPConfiguration> {
+public class IdentityProviderService extends EntityProviderService<IdentityProviderService, IDPConfiguration> {
 
     private static final String SERVICE_NAME = "IDPConfigurationService";
-    
-    public IdentityProviderService(OperationContext context, ModelNode modelNode) {
-        super(context, modelNode);
+
+    public IdentityProviderService(IDPConfiguration idpConfiguration, STSConfiguration stsConfiguration) {
+        super(idpConfiguration, stsConfiguration);
     }
-    
+
     /* (non-Javadoc)
      * @see org.jboss.msc.service.Service#start(org.jboss.msc.service.StartContext)
      */
     @Override
     public void start(StartContext context) throws StartException {
         super.start(context);
-        this.getFederationService().setIdentityProviderService(this);
     }
 
     /* (non-Javadoc)
@@ -64,15 +61,13 @@ public class IdentityProviderService extends AbstractEntityProviderService<Ident
     @Override
     public void stop(StopContext context) {
         super.stop(context);
-        this.setConfiguration(new IDPConfiguration());
-        this.getFederationService().setIdentityProviderService(null);
     }
 
     /* (non-Javadoc)
-     * @see org.picketlink.as.subsystem.service.AbstractEntityProviderService#doConfigureDeployment(org.jboss.as.server.deployment.DeploymentUnit)
+     * @see org.picketlink.as.subsystem.service.EntityProviderService#doConfigureDeployment(org.jboss.as.server.deployment.DeploymentUnit)
      */
     protected void doConfigureDeployment(DeploymentUnit deploymentUnit) {
-        if (getFederationService().getKeyProvider() != null) {
+        if (getConfiguration().getKeyProvider() != null) {
             TrustType trustType = this.getConfiguration().getTrust();
             
             if (trustType != null) {
@@ -94,43 +89,21 @@ public class IdentityProviderService extends AbstractEntityProviderService<Ident
                         
                         kv.setValue(value);
                         
-                        getFederationService().getKeyProvider().remove(kv);
-                        getFederationService().getKeyProvider().add(kv);
+                        getConfiguration().getKeyProvider().remove(kv);
+                        getConfiguration().getKeyProvider().add(kv);
                     }
                 }
             }
         }
     }
-    
-    /**
-     * Returns a instance of the service associated with the given name.
-     * 
-     * @param registry
-     * @param name
-     * @return
-     */
-    @SuppressWarnings("unchecked")
-    public static IdentityProviderService getService(ServiceRegistry registry, String name) {
-        ServiceController<IdentityProviderService> container = (ServiceController<IdentityProviderService>) registry.getService(IdentityProviderService.createServiceName(name));
-        
-        if (container != null) {
-            return container.getValue();
-        }
-        
-        return null;
+
+    @Override
+    protected void doAddHandlers() {
+        PicketLinkConfigUtil.addHandler(SAML2IssuerTrustHandler.class, getPicketLinkType());
     }
 
     public static ServiceName createServiceName(String alias) {
         return ServiceName.JBOSS.append(SERVICE_NAME, alias);
     }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.as.subsystem.service.AbstractEntityProviderService#toProviderType(org.jboss.dmr.ModelNode)
-     */
-    @Override
-    protected IDPConfiguration toProviderType(ModelNode operation) {
-        return ModelUtils.toIDPConfig(operation);
-    }
-
 
 }

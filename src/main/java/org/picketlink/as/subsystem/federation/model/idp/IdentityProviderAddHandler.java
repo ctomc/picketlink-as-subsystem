@@ -22,52 +22,45 @@
 
 package org.picketlink.as.subsystem.federation.model.idp;
 
-import java.util.List;
-
+import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.PathAddress;
+import org.jboss.as.controller.RestartParentResourceAddHandler;
 import org.jboss.as.controller.ServiceVerificationHandler;
-import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.dmr.ModelNode;
-import org.jboss.msc.service.ServiceController;
-import org.jboss.msc.service.ServiceController.Mode;
-import org.picketlink.as.subsystem.federation.service.IdentityProviderService;
-import org.picketlink.as.subsystem.model.AbstractResourceAddStepHandler;
+import org.jboss.msc.service.ServiceName;
+import org.picketlink.as.subsystem.federation.model.FederationAddHandler;
+import org.picketlink.as.subsystem.federation.service.FederationService;
 import org.picketlink.as.subsystem.model.ModelElement;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
-public class IdentityProviderAddHandler extends AbstractResourceAddStepHandler {
+public class IdentityProviderAddHandler extends RestartParentResourceAddHandler {
 
     public static final IdentityProviderAddHandler INSTANCE = new IdentityProviderAddHandler();
-    
-    private IdentityProviderAddHandler() {
-        super(ModelElement.IDENTITY_PROVIDER);
+
+    protected IdentityProviderAddHandler() {
+        super(ModelElement.FEDERATION.getName());
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.jboss.as.controller.AbstractAddStepHandler#performRuntime(org.jboss.as.controller.OperationContext,
-     * org.jboss.dmr.ModelNode, org.jboss.dmr.ModelNode, org.jboss.as.controller.ServiceVerificationHandler, java.util.List)
-     */
     @Override
-    protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model,
-            ServiceVerificationHandler verificationHandler, List<ServiceController<?>> newControllers)
-            throws OperationFailedException {
-        PathAddress pathAddress = PathAddress.pathAddress(operation.get(ModelDescriptionConstants.ADDRESS));
+    protected void recreateParentService(OperationContext context, PathAddress parentAddress, ModelNode parentModel,
+                                         ServiceVerificationHandler verificationHandler) throws OperationFailedException {
+        FederationAddHandler.INSTANCE.createFederationService(parentModel, context, verificationHandler, null);
+    }
 
-        IdentityProviderService identityProviderService = new IdentityProviderService(
-                context, operation);
+    @Override
+    protected ServiceName getParentServiceName(PathAddress parentAddress) {
+        return FederationService.createServiceName(parentAddress.getLastElement().getValue());
+    }
 
-        ServiceController<IdentityProviderService> controller = context
-                .getServiceTarget()
-                .addService(IdentityProviderService.createServiceName(pathAddress.getLastElement().getValue()),
-                        identityProviderService).addListener(verificationHandler).setInitialMode(Mode.ACTIVE).install();
-
-        newControllers.add(controller);
+    @Override
+    protected void populateModel(ModelNode operation, ModelNode model) throws OperationFailedException {
+        for (AttributeDefinition attribute : IdentityProviderResourceDefinition.INSTANCE.getAttributes()) {
+            attribute.validateAndSet(operation, model);
+        }
     }
 
 }

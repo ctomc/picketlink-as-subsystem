@@ -71,7 +71,8 @@ public class AbstractIntegrationTests {
                 .addAsWebResource(DEPLOYMENT_ROOT_DIR + "/jbid_test_keystore.jks", "WEB-INF/classes/jbid_test_keystore.jks")
                 .addAsWebResource(IDP_DEPLOYMENT_ROOT_DIR + "/jsp/login.jsp", "jsp/login.jsp")
                 .addAsWebResource(IDP_DEPLOYMENT_ROOT_DIR + "/jsp/error.jsp", "jsp/error.jsp")
-                .addAsWebResource(IDP_DEPLOYMENT_ROOT_DIR + "/index.jsp", "index.jsp");
+                .addAsWebResource(IDP_DEPLOYMENT_ROOT_DIR + "/index.jsp", "index.jsp")
+                .addAsManifestResource(AbstractIntegrationTests.class.getClassLoader().getResource("deployment/jboss-deployment-structure-fed.xml"), "jboss-deployment-structure.xml");
 
         return webArchive;
     }
@@ -91,7 +92,8 @@ public class AbstractIntegrationTests {
                 .addAsWebResource(DEPLOYMENT_ROOT_DIR + "/jbid_test_keystore.jks", "WEB-INF/classes/jbid_test_keystore.jks")
                 .addAsWebResource(SP_DEPLOYMENT_ROOT_DIR + "/index.jsp", "index.jsp")
                 .addAsWebResource(SP_DEPLOYMENT_ROOT_DIR + "/customErrorPage.jsp", "customErrorPage.jsp")
-                .addAsWebResource(SP_DEPLOYMENT_ROOT_DIR + "/logout.jsp", "logout.jsp");
+                .addAsWebResource(SP_DEPLOYMENT_ROOT_DIR + "/logout.jsp", "logout.jsp")
+                .addAsManifestResource(AbstractIntegrationTests.class.getClassLoader().getResource("deployment/jboss-deployment-structure-fed.xml"), "jboss-deployment-structure.xml");
 
         return webArchive;
     }

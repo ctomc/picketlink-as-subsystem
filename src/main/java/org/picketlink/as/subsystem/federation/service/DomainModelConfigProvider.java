@@ -33,7 +33,7 @@ import org.picketlink.identity.federation.web.util.SAMLConfigurationProvider;
 
 /**
  * <p>
- * This class is a custom {@link SAMLConfigurationProvider} to be used to configure identity providers and service providers
+ * This class is a custom {@link SAMLConfigurationProvider} to be used to configureDeployment identity providers and service providers
  * with the configurations defined in the subsystem.
  * </p>
  * 

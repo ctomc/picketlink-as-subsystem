@@ -22,6 +22,8 @@
 
 package org.picketlink.as.subsystem.idm.model;
 
+import org.jboss.as.controller.OperationContext;
+import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.registry.Resource.ResourceEntry;
 import org.jboss.dmr.ModelNode;
 import org.jboss.modules.Module;
@@ -50,7 +52,7 @@ import java.util.Set;
  */
 public class IdentityManagementConfiguration {
 
-    public static IdentityStoreConfigurationBuilder configureStore(String storeType, ResourceEntry resource, final NamedIdentityConfigurationBuilder builder, final PartitionManagerService partitionManagerService) {
+    public static IdentityStoreConfigurationBuilder configureStore(OperationContext context, String storeType, ResourceEntry resource, final NamedIdentityConfigurationBuilder builder, final PartitionManagerService partitionManagerService) throws OperationFailedException {
         IdentityStoreConfigurationBuilder storeConfig = null;
         ModelNode modelNode = resource.getModel();
         ModelNode alternativeModuleNode = modelNode.get(ModelElement.COMMON_MODULE.getName());
@@ -68,11 +70,11 @@ public class IdentityManagementConfiguration {
         }
 
         if (storeType.equals(ModelElement.JPA_STORE.getName())) {
-            storeConfig = configureJPAIdentityStore(resource, builder, partitionManagerService);
+            storeConfig = configureJPAIdentityStore(context, resource, builder, partitionManagerService);
         } else if (storeType.equals(ModelElement.FILE_STORE.getName())) {
-            storeConfig = configureFileIdentityStore(resource, builder);
+            storeConfig = configureFileIdentityStore(context, resource, builder);
         } else if (storeType.equals(ModelElement.LDAP_STORE.getName())) {
-            storeConfig = configureLDAPIdentityStore(alternativeModule, resource, builder);
+            storeConfig = configureLDAPIdentityStore(context, alternativeModule, resource, builder);
         } else {
             throw PicketLinkMessages.MESSAGES.idmNoConfigurationProvided();
         }
@@ -134,15 +136,16 @@ public class IdentityManagementConfiguration {
         return storeConfig;
     }
 
-    private static JPAStoreSubsystemConfigurationBuilder configureJPAIdentityStore(final ResourceEntry resource, final NamedIdentityConfigurationBuilder builder, final PartitionManagerService partitionManagerService) {
+    private static JPAStoreSubsystemConfigurationBuilder configureJPAIdentityStore(OperationContext context,
+                                                                                   final ResourceEntry resource,
+                                                                                   final NamedIdentityConfigurationBuilder builder,
+                                                                                   final PartitionManagerService partitionManagerService) throws OperationFailedException {
         JPAStoreSubsystemConfigurationBuilder storeConfig = builder.stores().add(JPAStoreSubsystemConfiguration.class, JPAStoreSubsystemConfigurationBuilder.class);
 
-        ModelNode jpaDataSourceNode = resource.getModel().get(ModelElement.JPA_STORE_DATASOURCE.getName());
-        ModelNode jpaEntityModule = resource.getModel().get(ModelElement.JPA_STORE_ENTITY_MODULE.getName());
-        ModelNode jpaEntityModuleUnitName = resource.getModel().get(
-                ModelElement.JPA_STORE_ENTITY_MODULE_UNIT_NAME.getName());
-        ModelNode jpaEntityManagerFactoryNode = resource.getModel().get(
-                ModelElement.JPA_STORE_ENTITY_MANAGER_FACTORY.getName());
+        ModelNode jpaDataSourceNode = JPAStoreResourceDefinition.DATA_SOURCE.resolveModelAttribute(context, resource.getModel());
+        ModelNode jpaEntityModule = JPAStoreResourceDefinition.ENTITY_MODULE.resolveModelAttribute(context, resource.getModel());
+        ModelNode jpaEntityModuleUnitName = JPAStoreResourceDefinition.ENTITY_MODULE_UNIT_NAME.resolveModelAttribute(context, resource.getModel());
+        ModelNode jpaEntityManagerFactoryNode = JPAStoreResourceDefinition.ENTITY_MANAGER_FACTORY.resolveModelAttribute(context, resource.getModel());
 
         if (jpaEntityModule.isDefined()) {
             storeConfig.entityModule(jpaEntityModule.asString());
@@ -181,14 +184,14 @@ public class IdentityManagementConfiguration {
         }
     }
 
-    private static IdentityStoreConfigurationBuilder configureFileIdentityStore(ResourceEntry resource, final NamedIdentityConfigurationBuilder builder) {
+    private static IdentityStoreConfigurationBuilder configureFileIdentityStore(OperationContext context, ResourceEntry resource, final NamedIdentityConfigurationBuilder builder) throws OperationFailedException {
         ModelNode modelNode = resource.getModel();
         FileStoreConfigurationBuilder fileStoreBuilder = builder.stores().file();
 
-        ModelNode workingDir = modelNode.get(ModelElement.FILE_STORE_WORKING_DIR.getName());
-        ModelNode alwaysCreateFiles = modelNode.get(ModelElement.FILE_STORE_ALWAYS_CREATE_FILE.getName());
-        ModelNode asyncWrite = modelNode.get(ModelElement.FILE_STORE_ASYNC_WRITE.getName());
-        ModelNode asyncWriteThreadPool = modelNode.get(ModelElement.FILE_STORE_ASYNC_THREAD_POOL.getName());
+        ModelNode workingDir = FileStoreResourceDefinition.WORKING_DIR.resolveModelAttribute(context, resource.getModel());
+        ModelNode alwaysCreateFiles = FileStoreResourceDefinition.ALWAYS_CREATE_FILE.resolveModelAttribute(context, resource.getModel());
+        ModelNode asyncWrite = FileStoreResourceDefinition.ASYNC_WRITE.resolveModelAttribute(context, resource.getModel());
+        ModelNode asyncWriteThreadPool = FileStoreResourceDefinition.ASYNC_WRITE_THREAD_POOL.resolveModelAttribute(context, resource.getModel());
 
         if (workingDir.isDefined()) {
             fileStoreBuilder.workingDirectory(workingDir.asString());
@@ -209,14 +212,13 @@ public class IdentityManagementConfiguration {
         return fileStoreBuilder;
     }
 
-    private static LDAPStoreConfigurationBuilder configureLDAPIdentityStore(Module alternativeModule, ResourceEntry resource, NamedIdentityConfigurationBuilder builder) {
-        ModelNode modelNode = resource.getModel();
+    private static LDAPStoreConfigurationBuilder configureLDAPIdentityStore(OperationContext context, Module alternativeModule, ResourceEntry resource, NamedIdentityConfigurationBuilder builder) throws OperationFailedException {
         LDAPStoreConfigurationBuilder storeConfig = builder.stores().ldap();
-
-        ModelNode url = modelNode.get(ModelElement.LDAP_STORE_URL.getName());
-        ModelNode bindDn = modelNode.get(ModelElement.LDAP_STORE_BIND_DN.getName());
-        ModelNode bindCredential = modelNode.get(ModelElement.LDAP_STORE_BIND_CREDENTIAL.getName());
-        ModelNode baseDn = modelNode.get(ModelElement.LDAP_STORE_BASE_DN_SUFFIX.getName());
+        ModelNode modelNode = resource.getModel();
+        ModelNode url = LDAPStoreResourceDefinition.URL.resolveModelAttribute(context, modelNode);
+        ModelNode bindDn = LDAPStoreResourceDefinition.BIND_DN.resolveModelAttribute(context, modelNode);
+        ModelNode bindCredential = LDAPStoreResourceDefinition.BIND_CREDENTIAL.resolveModelAttribute(context, modelNode);
+        ModelNode baseDn = LDAPStoreResourceDefinition.BASE_DN_SUFFIX.resolveModelAttribute(context, modelNode);
 
         if (url.isDefined()) {
             storeConfig.url(url.asString());
@@ -238,7 +240,7 @@ public class IdentityManagementConfiguration {
 
         for (ResourceEntry mapping : mappings) {
             ModelNode mappingModelNode = mapping.getModel();
-            String mappingClass = mappingModelNode.get(ModelElement.LDAP_STORE_MAPPING_CLASS.getName()).asString();
+            String mappingClass = LDAPStoreMappingResourceDefinition.CLASS.resolveModelAttribute(context, mappingModelNode).asString();
             LDAPMappingConfigurationBuilder storeMapping;
 
             try {
@@ -247,7 +249,7 @@ public class IdentityManagementConfiguration {
                 throw new RuntimeException("Could not load LDAP mapped class [" + mappingClass + "].", e);
             }
 
-            ModelNode relatesTo = mappingModelNode.get(ModelElement.LDAP_STORE_MAPPING_RELATES_TO.getName());
+            ModelNode relatesTo = LDAPStoreMappingResourceDefinition.RELATES_TO.resolveModelAttribute(context, mappingModelNode);
 
             if (relatesTo.isDefined()) {
                 try {
@@ -256,11 +258,11 @@ public class IdentityManagementConfiguration {
                     throw new RuntimeException("Could not load LDAP mapped class [" + mappingClass + "].", e);
                 }
             } else {
-                String baseDN = mappingModelNode.get(ModelElement.LDAP_STORE_MAPPING_BASE_DN.getName()).asString();
+                String baseDN = LDAPStoreMappingResourceDefinition.BASE_DN.resolveModelAttribute(context, mappingModelNode).asString();
 
                 storeMapping.baseDN(baseDN);
 
-                String objectClasses = mappingModelNode.get(ModelElement.LDAP_STORE_MAPPING_OBJECT_CLASSES.getName()).asString();
+                String objectClasses = LDAPStoreMappingResourceDefinition.OBJECT_CLASSES.resolveModelAttribute(context, mappingModelNode).asString();
 
                 for (String objClass: objectClasses.split(",")) {
                     if (!objClass.trim().isEmpty()) {
@@ -268,7 +270,7 @@ public class IdentityManagementConfiguration {
                     }
                 }
 
-                ModelNode parentAttributeName = mappingModelNode.get(ModelElement.LDAP_STORE_MAPPING_PARENT_ATTRIBUTE_NAME.getName());
+                ModelNode parentAttributeName = LDAPStoreMappingResourceDefinition.PARENT_ATTRIBUTE.resolveModelAttribute(context, mappingModelNode);
 
                 if (parentAttributeName.isDefined()) {
                     storeMapping.parentMembershipAttributeName(parentAttributeName.asString());
@@ -282,14 +284,14 @@ public class IdentityManagementConfiguration {
 
                 String name = attributeModel.get(ModelElement.LDAP_STORE_ATTRIBUTE_NAME.getName()).asString();
 
-                String ldapName = attributeModel.get(ModelElement.LDAP_STORE_ATTRIBUTE_LDAP_NAME.getName()).asString();
+                String ldapName = LDAPStoreAttributeResourceDefinition.LDAP_NAME.resolveModelAttribute(context, attributeModel).asString();
 
-                ModelNode readOnlyModelNode = attributeModel.get(ModelElement.LDAP_STORE_ATTRIBUTE_READ_ONLY.getName());
+                ModelNode readOnlyModelNode = LDAPStoreAttributeResourceDefinition.READ_ONLY.resolveModelAttribute(context, attributeModel);
 
                 if (readOnlyModelNode.isDefined() && readOnlyModelNode.asBoolean()) {
                     storeMapping.readOnlyAttribute(name, ldapName);
                 } else {
-                    ModelNode identifierModelNode = attributeModel.get(ModelElement.LDAP_STORE_ATTRIBUTE_IS_IDENTIFIER.getName());
+                    ModelNode identifierModelNode = LDAPStoreAttributeResourceDefinition.IS_IDENTIFIER.resolveModelAttribute(context, attributeModel);
                     boolean isIdentifier = false;
 
                     if (identifierModelNode.isDefined()) {

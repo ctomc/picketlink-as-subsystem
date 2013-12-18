@@ -8,7 +8,7 @@
 
 	<xsl:output method="xml" indent="yes" />
 	
-	<!-- If the extension is already defined, remove it to configure it again. -->
+	<!-- If the extension is already defined, remove it to configureDeployment it again. -->
 	<xsl:template match="//as:extensions/as:extension[@module='org.picketlink.as.extension']"/>
 	
 	<xsl:template match="as:extensions">
