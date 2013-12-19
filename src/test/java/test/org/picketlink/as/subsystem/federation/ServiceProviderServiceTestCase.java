@@ -21,25 +21,22 @@
  */
 package test.org.picketlink.as.subsystem.federation;
 
-import static junit.framework.Assert.assertEquals;
-
-import java.util.List;
-
-import junit.framework.Assert;
-
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.Property;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.picketlink.as.subsystem.federation.service.ServiceProviderService;
 import org.picketlink.as.subsystem.model.ModelElement;
 import org.picketlink.identity.federation.core.config.SPConfiguration;
 
+import java.util.List;
+
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-@Ignore
 public class ServiceProviderServiceTestCase extends AbstractFederationSubsystemTestCase {
 
     /**
@@ -56,7 +53,7 @@ public class ServiceProviderServiceTestCase extends AbstractFederationSubsystemT
         List<Property> serviceProvidersList = serviceProviders.asPropertyList();
 
         for (Property property : serviceProvidersList) {
-            Assert.assertNotNull(getInstalledService(ServiceProviderService.createServiceName(property.getName())));
+            assertNotNull(getInstalledService(ServiceProviderService.createServiceName(property.getName())));
         }
     }
     

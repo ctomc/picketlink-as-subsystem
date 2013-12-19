@@ -23,7 +23,6 @@ package test.org.picketlink.as.subsystem.federation;
 
 import junit.framework.Assert;
 import org.jboss.dmr.ModelNode;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.picketlink.as.subsystem.federation.service.FederationService;
 import org.picketlink.as.subsystem.model.ModelElement;
@@ -40,7 +39,6 @@ import static junit.framework.Assert.assertTrue;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
-@Ignore
 public class FederationServiceTestCase extends AbstractFederationSubsystemTestCase {
 
     /**
@@ -65,11 +63,8 @@ public class FederationServiceTestCase extends AbstractFederationSubsystemTestCa
     @Test
     public void testConfigureFederationService() throws Exception {
         FederationService federationService = getFederationService();
-
         assertNotNull(federationService);
-        assertNotNull(federationService.getKeyProvider());
-        assertNotNull(federationService.getSamlConfig());
-        
+
     }
 
     /**
@@ -104,12 +99,12 @@ public class FederationServiceTestCase extends AbstractFederationSubsystemTestCa
         
         assertTrue(keyStoreNode.isDefined());
         
-        assertEquals(keyStoreNode.get(ModelElement.SAML_TOKEN_TIMEOUT.getName()).asInt(), getFederationService().getSamlConfig().getTokenTimeout());
-        assertEquals(keyStoreNode.get(ModelElement.SAML_CLOCK_SKEW.getName()).asInt(), getFederationService().getSamlConfig().getClockSkew());
+        assertEquals(keyStoreNode.get(ModelElement.SAML_TOKEN_TIMEOUT.getName()).asInt(), getIdentityProviderService().getStsType().getTokenTimeout());
+        assertEquals(keyStoreNode.get(ModelElement.SAML_CLOCK_SKEW.getName()).asInt(), getIdentityProviderService().getStsType().getClockSkew());
     }
 
     private String getKeyStoreAttribute(String authKey) {
-        List<AuthPropertyType> auth = getFederationService().getKeyProvider().getAuth();
+        List<AuthPropertyType> auth = getIdentityProviderService().getConfiguration().getKeyProvider().getAuth();
         String value = null;
         
         for (AuthPropertyType authPropertyType : auth) {

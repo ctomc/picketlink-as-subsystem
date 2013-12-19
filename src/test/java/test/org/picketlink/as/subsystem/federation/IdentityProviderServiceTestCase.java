@@ -22,20 +22,19 @@
 package test.org.picketlink.as.subsystem.federation;
 
 import junit.framework.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.picketlink.as.subsystem.federation.service.IdentityProviderService;
 import org.picketlink.as.subsystem.model.ModelElement;
 import org.picketlink.config.federation.TrustType;
 import org.picketlink.identity.federation.core.config.IDPConfiguration;
 
-import static junit.framework.Assert.*;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
-@Ignore
 public class IdentityProviderServiceTestCase extends AbstractFederationSubsystemTestCase {
 
     /**
@@ -47,7 +46,7 @@ public class IdentityProviderServiceTestCase extends AbstractFederationSubsystem
      */
     @Test
     public void testIdentityProviderServiceInstallation() throws Exception {
-        Assert.assertNotNull(getIdentityProviderService());
+        assertNotNull(getIdentityProviderService());
     }
 
     /**
@@ -75,11 +74,10 @@ public class IdentityProviderServiceTestCase extends AbstractFederationSubsystem
         assertNotNull(trustType.getDomains());
         Assert.assertFalse(trustType.getDomains().isEmpty());
         
-        assertNotNull(identityProviderService.getPicketLinkType());
-        assertNotNull(identityProviderService.getPicketLinkType().getStsType());
+        assertNotNull(identityProviderService.getStsType());
         
-        assertEquals(identityProviderService.getPicketLinkType().getStsType().getTokenTimeout(), getFederationService().getSamlConfig().getTokenTimeout());
-        assertEquals(identityProviderService.getPicketLinkType().getStsType().getClockSkew(), getFederationService().getSamlConfig().getClockSkew());
+        assertEquals(identityProviderService.getStsType().getTokenTimeout(), getIdentityProviderService().getStsType().getTokenTimeout());
+        assertEquals(identityProviderService.getStsType().getClockSkew(), getIdentityProviderService().getStsType().getClockSkew());
     }
     
 }

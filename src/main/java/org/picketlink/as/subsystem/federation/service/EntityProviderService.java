@@ -36,10 +36,12 @@ import org.picketlink.common.exceptions.ConfigurationException;
 import org.picketlink.config.federation.KeyValueType;
 import org.picketlink.config.federation.PicketLinkType;
 import org.picketlink.config.federation.ProviderType;
+import org.picketlink.config.federation.STSType;
 import org.picketlink.config.federation.TokenProviderType;
 import org.picketlink.config.federation.handler.Handler;
 import org.picketlink.config.federation.handler.Handlers;
 import org.picketlink.identity.federation.core.config.ProviderConfiguration;
+import org.picketlink.identity.federation.core.config.SAMLConfiguration;
 import org.picketlink.identity.federation.core.config.STSConfiguration;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler;
 import org.picketlink.identity.federation.web.handlers.saml2.RolesGenerationHandler;
@@ -55,22 +57,16 @@ import static org.picketlink.identity.federation.core.config.PicketLinkConfigUti
 import static org.picketlink.identity.federation.core.config.PicketLinkConfigUtil.createSTSType;
 
 /**
- * @param <T>
- * @param <C>
- *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
 public abstract class EntityProviderService<T extends PicketLinkFederationService<T>, C extends ProviderConfiguration> implements PicketLinkFederationService<T> {
 
-    private STSConfiguration stsConfiguration;
     private PicketLinkType picketLinkType;
-    private C configuration;
     private InjectedValue<FederationService> federationService = new InjectedValue<FederationService>();
     private PicketLinkSubsystemMetrics metrics;
-    private static List<Class<? extends SAML2Handler>> commonHandlersList;
+    private static List<Class<? extends SAML2Handler>> commonHandlersList = new ArrayList<Class<? extends SAML2Handler>>();
 
     static {
-        commonHandlersList = new ArrayList<Class<? extends SAML2Handler>>();
         commonHandlersList.add(SAML2LogOutHandler.class);
         commonHandlersList.add(SAML2AuthenticationHandler.class);
         commonHandlersList.add(RolesGenerationHandler.class);
@@ -78,22 +74,20 @@ public abstract class EntityProviderService<T extends PicketLinkFederationServic
         commonHandlersList.add(SAML2SignatureValidationHandler.class);
     }
 
+    private SAMLConfiguration stsType;
+
     public EntityProviderService(C configuration, STSConfiguration stsConfiguration) {
-        this.configuration = configuration;
-        this.stsConfiguration = stsConfiguration;
+        createPicketLinkType((ProviderType) configuration, stsConfiguration);
     }
 
     @Override
     public void start(StartContext context) throws StartException {
-        PicketLinkLogger.ROOT_LOGGER.info("Starting service for " + getConfiguration().getAlias());
+        PicketLinkLogger.ROOT_LOGGER.debugf("Starting service for %s.", getConfiguration().getAlias());
     }
 
-    /* (non-Javadoc)
-     * @see org.jboss.msc.service.Service#stop(org.jboss.msc.service.StopContext)
-     */
     @Override
     public void stop(StopContext context) {
-        PicketLinkLogger.ROOT_LOGGER.info("Stopping service for " + getConfiguration().getAlias());
+        PicketLinkLogger.ROOT_LOGGER.debugf("Stopping service for %s.", getConfiguration().getAlias());
     }
 
     /**
@@ -115,14 +109,11 @@ public abstract class EntityProviderService<T extends PicketLinkFederationServic
      * <p>Configure the STS Token Providers.</p>
      */
     private void configureTokenProviders() {
-        if (this.stsConfiguration != null) {
-            int tokenTimeout = this.stsConfiguration.getTokenTimeout();
-            int clockSkew = this.stsConfiguration.getClockSkew();
+        if (getPicketLinkType().getStsType() != null) {
+            int tokenTimeout = getPicketLinkType().getStsType().getTokenTimeout();
+            int clockSkew = getPicketLinkType().getStsType().getClockSkew();
 
-            this.picketLinkType.getStsType().setTokenTimeout(tokenTimeout);
-            this.picketLinkType.getStsType().setClockSkew(clockSkew);
-
-            List<TokenProviderType> tokenProviders = this.picketLinkType.getStsType().getTokenProviders().getTokenProvider();
+            List<TokenProviderType> tokenProviders = getPicketLinkType().getStsType().getTokenProviders().getTokenProvider();
 
             for (TokenProviderType tokenProviderType : tokenProviders) {
                 if (tokenProviderType.getTokenType().equals(JBossSAMLURIConstants.ASSERTION_NSURI.get())) {
@@ -160,14 +151,14 @@ public abstract class EntityProviderService<T extends PicketLinkFederationServic
 
         getPicketLinkType().setHandlers(new Handlers());
 
-        for (Class<? extends SAML2Handler> commonHandlerClass : commonHandlersList) {
-            addHandler(commonHandlerClass, getPicketLinkType());
-        }
-
         doAddHandlers();
 
         for (Handler handler : handlers) {
             getPicketLinkType().getHandlers().add(handler);
+        }
+
+        for (Class<? extends SAML2Handler> commonHandlerClass : commonHandlersList) {
+            addHandler(commonHandlerClass, getPicketLinkType());
         }
     }
 
@@ -214,13 +205,11 @@ public abstract class EntityProviderService<T extends PicketLinkFederationServic
         return new PicketLinkWebContextFactory(new DomainModelConfigProvider(getPicketLinkType()), getMetrics());
     }
 
-    /* (non-Javadoc)
-     * @see org.picketlink.as.subsystem.service.PicketLinkService#getMetrics()
-     */
+    @Override
     public PicketLinkSubsystemMetrics getMetrics() {
         if (this.metrics == null) {
             try {
-                this.metrics = new PicketLinkSubsystemMetrics(configuration.getSecurityDomain());
+                this.metrics = new PicketLinkSubsystemMetrics(((ProviderConfiguration) getPicketLinkType().getIdpOrSP()).getSecurityDomain());
             } catch (ConfigurationException e) {
                 PicketLinkLogger.ROOT_LOGGER.error("Error while configuring the metrics collector. Metrics will not be collected.", e);
             }
@@ -231,7 +220,9 @@ public abstract class EntityProviderService<T extends PicketLinkFederationServic
 
     /**
      * <p>
-     * Subclasses should implement this method to configureDeployment a specific PicketLink Provider type. Eg.: Identity Provider
+     * Subclasses should implement this method to configureDeployment a specific PicketLink Provider type. Eg.:
+     * Identity
+     * Provider
      * or Service Provider.
      * </p>
      *
@@ -246,24 +237,40 @@ public abstract class EntityProviderService<T extends PicketLinkFederationServic
     }
 
     public C getConfiguration() {
-        return configuration;
+        return (C) getPicketLinkType().getIdpOrSP();
     }
 
     public InjectedValue<FederationService> getFederationService() {
         return this.federationService;
     }
 
-    public PicketLinkType getPicketLinkType() {
-        if (this.picketLinkType == null) {
-            this.picketLinkType = new PicketLinkType();
-            this.picketLinkType.setStsType(createSTSType());
-            this.picketLinkType.setHandlers(new Handlers());
-            this.picketLinkType.setEnableAudit(true);
+    public Handlers getHandlers() {
+        return getPicketLinkType().getHandlers();
+    }
+
+    public STSType getStsType() {
+        return getPicketLinkType().getStsType();
+    }
+
+    protected PicketLinkType getPicketLinkType() {
+        return this.picketLinkType;
+    }
+
+    private void createPicketLinkType(final ProviderType configuration, final STSConfiguration stsConfiguration) {
+        this.picketLinkType = new PicketLinkType();
+
+        STSType stsType = createSTSType();
+
+        if (stsConfiguration != null) {
+            stsType.setClockSkew(stsConfiguration.getClockSkew());
+            stsType.setTokenTimeout(stsConfiguration.getTokenTimeout());
         }
 
-        this.picketLinkType.setIdpOrSP((ProviderType) getConfiguration());
+        this.picketLinkType.setStsType(stsType);
+        this.picketLinkType.setHandlers(new Handlers());
+        this.picketLinkType.setEnableAudit(true);
 
-        return this.picketLinkType;
+        this.picketLinkType.setIdpOrSP(configuration);
     }
 
 }

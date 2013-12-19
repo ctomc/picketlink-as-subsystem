@@ -68,7 +68,7 @@ public class HandlerParameterAddHandler extends AbstractAddStepHandler {
         EntityProviderService providerService = getParentProviderService(context, providerAlias);
 
         if (providerService != null) {
-            Handlers handlerChain = providerService.getPicketLinkType().getHandlers();
+            Handlers handlerChain = providerService.getHandlers();
 
             for (Handler handler : new ArrayList<Handler>(handlerChain.getHandler())) {
                 if (handler.getClazz().equals(handlerClassName)) {

@@ -59,7 +59,7 @@ public class HandlerAddHandler extends AbstractAddStepHandler {
         String className = HandlerResourceDefinition.CLASS.resolveModelAttribute(context, model).asString();
         EntityProviderService providerService = getParentProviderService(context, providerAlias);
 
-        Handlers handlerChain = providerService.getPicketLinkType().getHandlers();
+        Handlers handlerChain = providerService.getHandlers();
         Handler newHandler = new Handler();
 
         newHandler.setClazz(className);

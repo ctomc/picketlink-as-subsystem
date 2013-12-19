@@ -47,25 +47,6 @@ public class IdentityProviderService extends EntityProviderService<IdentityProvi
         super(idpConfiguration, stsConfiguration);
     }
 
-    /* (non-Javadoc)
-     * @see org.jboss.msc.service.Service#start(org.jboss.msc.service.StartContext)
-     */
-    @Override
-    public void start(StartContext context) throws StartException {
-        super.start(context);
-    }
-
-    /* (non-Javadoc)
-     * @see org.jboss.msc.service.Service#stop(org.jboss.msc.service.StopContext)
-     */
-    @Override
-    public void stop(StopContext context) {
-        super.stop(context);
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.as.subsystem.service.EntityProviderService#doConfigureDeployment(org.jboss.as.server.deployment.DeploymentUnit)
-     */
     protected void doConfigureDeployment(DeploymentUnit deploymentUnit) {
         if (getConfiguration().getKeyProvider() != null) {
             TrustType trustType = this.getConfiguration().getTrust();

@@ -48,22 +48,11 @@ public class PicketLinkWebContextFactory implements WebContextFactory {
         this.auditHelper = metrics;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.jboss.as.web.ext.WebContextFactory#createContext(org.jboss.as.server.deployment.DeploymentUnit)
-     */
     @Override
     public StandardContext createContext(DeploymentUnit deploymentUnit) throws DeploymentUnitProcessingException {
         return new StandardContext();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.jboss.as.web.ext.WebContextFactory#postProcessContext(org.jboss.as.server.deployment.DeploymentUnit,
-     * org.apache.catalina.core.StandardContext)
-     */
     @Override
     public void postProcessContext(DeploymentUnit deploymentUnit, StandardContext webContext) {
         if (this.configProvider.isIdentityProviderConfiguration()) {
@@ -73,11 +62,6 @@ public class PicketLinkWebContextFactory implements WebContextFactory {
         }
     }
 
-    /**
-     * <p>Adds the Service Provider valves.</p>
-     * 
-     * @param webContext
-     */
     private void addServiceProviderValves(StandardContext webContext) {
         ServiceProviderAuthenticator valve = new ServiceProviderAuthenticator();
 
@@ -87,11 +71,6 @@ public class PicketLinkWebContextFactory implements WebContextFactory {
         webContext.addValve(valve);
     }
 
-    /**
-     * <p>Adds the Identity Provider valves.</p>
-     * 
-     * @param webContext
-     */
     private void addIdentityProviderValves(StandardContext webContext) {
         IDPWebBrowserSSOValve valve = new IDPWebBrowserSSOValve();
 

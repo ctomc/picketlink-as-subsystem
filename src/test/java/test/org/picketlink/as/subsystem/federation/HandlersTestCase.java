@@ -21,7 +21,6 @@
  */
 package test.org.picketlink.as.subsystem.federation;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.picketlink.as.subsystem.federation.service.IdentityProviderService;
 import org.picketlink.as.subsystem.federation.service.ServiceProviderService;
@@ -37,7 +36,6 @@ import static org.junit.Assert.assertTrue;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
-@Ignore
 public class HandlersTestCase extends AbstractFederationSubsystemTestCase {
 
     private static final String FAKE_HANDLER_CLASS_NAME = "org.picketlink.NonExistentHandler";
@@ -61,7 +59,7 @@ public class HandlersTestCase extends AbstractFederationSubsystemTestCase {
     public void testIdentityProviderHandlerConfiguration() throws Exception {
         IdentityProviderService identityProviderService = getIdentityProviderService();
         
-        Handlers handlerChain = identityProviderService.getPicketLinkType().getHandlers();
+        Handlers handlerChain = identityProviderService.getHandlers();
         List<Handler> handlers = handlerChain.getHandler();
         boolean hasFakeHandler = false;
         
@@ -86,7 +84,7 @@ public class HandlersTestCase extends AbstractFederationSubsystemTestCase {
     public void testHandlerParameterConfiguration() throws Exception {
         IdentityProviderService identityProviderService = getIdentityProviderService();
         
-        Handlers handlerChain = identityProviderService.getPicketLinkType().getHandlers();
+        Handlers handlerChain = identityProviderService.getHandlers();
         List<Handler> handlers = handlerChain.getHandler();
         
         for (Handler handler : handlers) {
@@ -107,7 +105,7 @@ public class HandlersTestCase extends AbstractFederationSubsystemTestCase {
     public void testServiceProviderHandlerConfiguration() throws Exception {
         ServiceProviderService serviceProviderService = getServiceProviderService("unit-test-fake-sp.war");
         
-        Handlers handlerChain = serviceProviderService.getPicketLinkType().getHandlers();
+        Handlers handlerChain = serviceProviderService.getHandlers();
         List<Handler> handlers = handlerChain.getHandler();
         boolean hasFakeHandler = false;
         

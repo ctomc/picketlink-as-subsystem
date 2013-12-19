@@ -21,15 +21,11 @@
  */
 package org.picketlink.as.subsystem.federation.service;
 
-import org.jboss.dmr.ModelNode;
 import org.jboss.msc.service.Service;
-import org.jboss.msc.service.ServiceController;
 import org.jboss.msc.service.ServiceName;
-import org.jboss.msc.service.ServiceRegistry;
 import org.jboss.msc.service.StartContext;
 import org.jboss.msc.service.StartException;
 import org.jboss.msc.service.StopContext;
-import org.picketlink.as.subsystem.model.ModelUtils;
 import org.picketlink.config.federation.KeyProviderType;
 import org.picketlink.identity.federation.core.config.STSConfiguration;
 
@@ -47,71 +43,19 @@ public class FederationService implements Service<FederationService> {
     private KeyProviderType keyProvider;
     private STSConfiguration samlConfig;
 
-    /* (non-Javadoc)
-     * @see org.jboss.msc.value.Value#getValue()
-     */
     @Override
     public FederationService getValue() throws IllegalStateException, IllegalArgumentException {
         return this;
     }
 
-    /* (non-Javadoc)
-     * @see org.jboss.msc.service.Service#start(org.jboss.msc.service.StartContext)
-     */
     @Override
     public void start(StartContext context) throws StartException {
-      //TODO: start identity provider service
     }
 
-    /* (non-Javadoc)
-     * @see org.jboss.msc.service.Service#stop(org.jboss.msc.service.StopContext)
-     */
     @Override
     public void stop(StopContext context) {
-      //TODO: start identity provider service
     }
 
-    /**
-     * Returns a instance of the service associated with the given name.
-     * 
-     * @param registry
-     * @param name
-     * @return
-     */
-    public static FederationService getService(ServiceRegistry registry, ModelNode model) {
-        ServiceController<?> container = registry.getService(FederationService.createServiceName(ModelUtils.getFederationAlias(model)));
-        
-        if (container != null) {
-            return (FederationService) container.getValue();
-        }
-        
-        return null;
-    }
-    
-    /**
-     * @return the idpConfiguration
-     */
-    public KeyProviderType getKeyProvider() {
-        return this.keyProvider;
-    }
-    
-    public void setKeyProvider(KeyProviderType keyProviderType) {
-        this.keyProvider = keyProviderType;
-    }
-    
-    public STSConfiguration getSamlConfig() {
-        return this.samlConfig;
-    }
-    
-    public void setSamlConfig(STSConfiguration samlConfig) {
-        this.samlConfig = samlConfig;
-    }
-
-    /**
-     * @param fedAlias
-     * @param alias2
-     * @return
-     */
     public static ServiceName createServiceName(String alias) {
         return ServiceName.JBOSS.append(SERVICE_NAME, alias);
     }

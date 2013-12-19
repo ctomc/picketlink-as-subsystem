@@ -36,7 +36,6 @@ import org.jboss.msc.service.ServiceBuilder;
 import org.jboss.msc.service.ServiceController;
 import org.jboss.msc.service.ServiceController.Mode;
 import org.jboss.msc.service.ServiceName;
-import org.picketlink.as.subsystem.federation.model.idp.IdentityProviderResourceDefinition;
 import org.picketlink.as.subsystem.federation.service.FederationService;
 import org.picketlink.as.subsystem.federation.service.IdentityProviderService;
 import org.picketlink.as.subsystem.federation.service.ServiceProviderService;
@@ -112,14 +111,11 @@ public class FederationAddHandler extends AbstractAddStepHandler {
 
         if (federation.hasDefined(ModelElement.IDENTITY_PROVIDER.getName())) {
             ModelNode identityProvider = federation.get(ModelElement.IDENTITY_PROVIDER.getName()).asProperty().getValue();
-            String alias = IdentityProviderResourceDefinition.ALIAS.resolveModelAttribute(context, identityProvider).asString();
             idpConfiguration = ModelUtils.toIDPConfig(context, identityProvider);
-
-            idpConfiguration.setAlias(identityProvider.asString());
 
             idpConfiguration.setKeyProvider(keyProviderType);
 
-            ServiceName name = IdentityProviderService.createServiceName(alias);
+            ServiceName name = IdentityProviderService.createServiceName(idpConfiguration.getAlias());
             IdentityProviderService identityProviderService = new IdentityProviderService(idpConfiguration, stsConfiguration);
             ServiceBuilder<IdentityProviderService> serviceBuilder = context.getServiceTarget().addService(name, identityProviderService);
 
@@ -139,14 +135,13 @@ public class FederationAddHandler extends AbstractAddStepHandler {
 
             for (Property property : serviceProviders.asPropertyList()) {
                 ModelNode serviceProvider = property.getValue();
-                String alias = IdentityProviderResourceDefinition.ALIAS.resolveModelAttribute(context, serviceProvider).asString();
                 SPConfiguration spConfiguration = ModelUtils.toSPConfig(context, serviceProvider);
 
                 spConfiguration.setIdentityURL(idpConfiguration.getIdentityURL());
 
                 spConfiguration.setKeyProvider(keyProviderType);
 
-                ServiceName name = IdentityProviderService.createServiceName(alias);
+                ServiceName name = ServiceProviderService.createServiceName(spConfiguration.getAlias());
                 ServiceProviderService serviceProviderService = new ServiceProviderService(spConfiguration, stsConfiguration);
                 ServiceBuilder<ServiceProviderService> serviceBuilder = context.getServiceTarget().addService(name, serviceProviderService);
 

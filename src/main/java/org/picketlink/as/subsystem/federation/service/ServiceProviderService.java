@@ -27,9 +27,6 @@ import org.jboss.as.server.deployment.DeploymentUnit;
 import org.jboss.msc.service.ServiceController;
 import org.jboss.msc.service.ServiceName;
 import org.jboss.msc.service.ServiceRegistry;
-import org.jboss.msc.service.StartContext;
-import org.jboss.msc.service.StartException;
-import org.jboss.msc.service.StopContext;
 import org.jboss.msc.value.InjectedValue;
 import org.picketlink.identity.federation.core.config.SPConfiguration;
 import org.picketlink.identity.federation.core.config.STSConfiguration;
@@ -51,25 +48,6 @@ public class ServiceProviderService extends EntityProviderService<ServiceProvide
         super(configuration, stsConfiguration);
     }
     
-    /* (non-Javadoc)
-     * @see org.jboss.msc.service.Service#start(org.jboss.msc.service.StartContext)
-     */
-    @Override
-    public void start(StartContext context) throws StartException {
-        super.start(context);
-    }
-
-    /* (non-Javadoc)
-     * @see org.jboss.msc.service.Service#stop(org.jboss.msc.service.StopContext)
-     */
-    @Override
-    public void stop(StopContext context) {
-        super.stop(context);
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.as.subsystem.service.EntityProviderService#doConfigureDeployment(org.jboss.as.server.deployment.DeploymentUnit)
-     */
     public void doConfigureDeployment(DeploymentUnit deploymentUnit) {
         configureBindingType();
     }

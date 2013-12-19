@@ -57,7 +57,7 @@ public class HandlerParameterRemoveHandler extends AbstractRemoveStepHandler {
         String handlerClassName = pathAddress.subAddress(0, pathAddress.size() - 1).getLastElement().getValue();
         String paramName = pathAddress.getLastElement().getValue();
         EntityProviderService providerService = getParentProviderService(context, providerAlias);
-        Handlers handlerChain = providerService.getPicketLinkType().getHandlers();
+        Handlers handlerChain = providerService.getHandlers();
 
         for (Handler handler : new ArrayList<Handler>(handlerChain.getHandler())) {
             if (handler.getClazz().equals(handlerClassName)) {

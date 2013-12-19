@@ -71,6 +71,12 @@ public final class PicketLinkConfigUtil {
     }
     
     public static void addHandler(Class<? extends SAML2Handler> handlerClassName, PicketLinkType picketLinkType) {
+        for (Handler handler: picketLinkType.getHandlers().getHandler()) {
+            if (handler.getClazz().equals(handlerClassName)) {
+                return;
+            }
+        }
+
         Handler handler = new Handler();
         
         handler.setClazz(handlerClassName.getName());
