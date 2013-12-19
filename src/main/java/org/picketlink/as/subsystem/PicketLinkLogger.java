@@ -25,16 +25,15 @@ package org.picketlink.as.subsystem;
 import static org.jboss.logging.Logger.Level.INFO;
 
 import org.jboss.logging.BasicLogger;
-import org.jboss.logging.LogMessage;
 import org.jboss.logging.Logger;
-import org.jboss.logging.Message;
-import org.jboss.logging.MessageLogger;
+import org.jboss.logging.annotations.LogMessage;
+import org.jboss.logging.annotations.Message;
+import org.jboss.logging.annotations.MessageLogger;
 
 /**
  * <p>JBoss Logging {@link BasicLogger} implementation.</p>
- * 
- * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
+ * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
 @MessageLogger(projectCode = "JBAS")
 public interface PicketLinkLogger extends BasicLogger {
